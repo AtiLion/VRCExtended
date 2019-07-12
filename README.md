@@ -47,3 +47,23 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 > - Does this mod work in VR? *Yes, the mod is designed to work fully with VR as well as desktop*
 > - Avatars are taking longer to load with local colliders. *An avatar with a ton of colliders will take longer to load as it has to register all of them*
 > - Sometimes all of the colliders go weird. *If an avatar has a world sized bone collider on it, it may cause things to start and look weird as the collider interacts with all of yours*
+
+## How to compile ##
+ 1. Make sure you have a program that can compile C# code
+ 2. Create a folder called *"lib"*
+ 3. Make sure the lib folder contains the following files:
+	- Assembly-CSharp.dll
+	- Assembly-CSharp-firstpass.dll
+	- Newtonsoft.Json.dll
+	- UnityEngine.AudioModule.dll
+	- UnityEngine.CoreModule.dll
+	- UnityEngine.dll
+	- UnityEngine.ParticleSystemModule.dll
+	- UnityEngine.PhysicsModule.dll
+	- UnityEngine.TextRenderingModule.dll
+	- UnityEngine.UI.dll
+	- VRCCore-Standalone.dll
+	- VRCSDK2.dll
+	- VRCModLoader.dll
+	- VRCTools.dll
+4. Use your compiler to compile the code
