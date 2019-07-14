@@ -5,6 +5,7 @@
 
 # Project Specific
 lib/
+*.zip
 
 # User-specific files
 *.suo

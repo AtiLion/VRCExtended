@@ -68,6 +68,9 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>..\lib\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>..\lib\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
     <Reference Include="VRCCore-Standalone">
       <HintPath>..\lib\VRCCore-Standalone.dll</HintPath>
     </Reference>

@@ -18,13 +18,13 @@ namespace VRCExtended
 
         #region Particle Crasher
         public bool ParticleLimit { get; set; }
-        public bool DetectPotentialCrasher { get; set; }
+        //public bool DetectPotentialCrasher { get; set; }
         public int MaxParticles { get; set; }
         #endregion
 
         #region Shader Crasher
         public bool ShaderBlacklist { get; set; }
-        public bool UseOnlineBlacklist { get; set; }
+        //public bool UseOnlineBlacklist { get; set; }
         public string[] BlacklistedShaders { get; set; }
         #endregion
 
@@ -39,11 +39,11 @@ namespace VRCExtended
             acc.MaxPolygons = 150000;
 
             acc.ParticleLimit = true;
-            acc.DetectPotentialCrasher = false;
+            //acc.DetectPotentialCrasher = false;
             acc.MaxParticles = 200;
 
             acc.ShaderBlacklist = true;
-            acc.UseOnlineBlacklist = false;
+            //acc.UseOnlineBlacklist = false;
             acc.BlacklistedShaders = new string[]
             {
                 "pretty",

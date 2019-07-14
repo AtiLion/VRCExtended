@@ -44,9 +44,15 @@ namespace VRCExtended.Patches
             SelectedAPI = __instance.user;
 
             if (APIUser.CurrentUser.id == __instance.user.id)
-                VRCExtended.RefreshButton.Button.interactable = false;
+            {
+                VRCExtended.UserInfoRefresh.Button.interactable = false;
+                VRCExtended.UserInfoDropPortal.Button.interactable = false;
+            }
             else
-                VRCExtended.RefreshButton.Button.interactable = true;
+            {
+                VRCExtended.UserInfoRefresh.Button.interactable = true;
+                VRCExtended.UserInfoDropPortal.Button.interactable = true;
+            }
         }
     }
 }

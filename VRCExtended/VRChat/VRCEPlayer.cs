@@ -7,6 +7,8 @@ using System.Text;
 using VRC;
 using VRC.Core;
 
+using VRCExtended;
+
 using UnityEngine;
 
 namespace VRChat
@@ -49,10 +51,16 @@ namespace VRChat
         public VRCEPlayer(Player player)
         {
             Player = player;
+
+            if (Voice == null)
+                ExtendedLogger.LogWarning("Could not find voice AudioSource for user: " + APIUser.displayName);
         }
         public VRCEPlayer()
         {
             Player = _player_get_Instance.Invoke(null, new object[] { }) as Player;
+
+            if (Voice == null)
+                ExtendedLogger.LogWarning("Could not find voice AudioSource for user: " + APIUser.displayName);
         }
 
         internal static void Setup()
@@ -61,9 +69,10 @@ namespace VRChat
             _player_get_Instance = typeof(Player).GetMethod("get_Instance", BindingFlags.Public | BindingFlags.Static);
 
             _vrcplayer_get_AvatarManager = typeof(VRCPlayer).GetMethod("get_AvatarManager", BindingFlags.Public | BindingFlags.Instance);
-            _vrcplayer_get_uSpeaker = typeof(VRCPlayer).GetMethod("get_uSpeaker", BindingFlags.Static | BindingFlags.Instance);
+            _vrcplayer_get_uSpeaker = typeof(VRCPlayer).GetMethod("get_uSpeaker", BindingFlags.Public | BindingFlags.Instance);
 
             _uspeaker_AudioSource = typeof(USpeaker).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).First(a => a.FieldType == typeof(AudioSource));
+            ExtendedLogger.Log("Found user voice AudioSource: " + _uspeaker_AudioSource.Name);
         }
     }
 }

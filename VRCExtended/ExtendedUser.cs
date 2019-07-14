@@ -27,6 +27,7 @@ namespace VRCExtended
 
         private Dictionary<Material, Shader> _fallbackShaders = new Dictionary<Material, Shader>();
         private Dictionary<ParticleSystem, int> _fallbackParticleLimits = new Dictionary<ParticleSystem, int>();
+        private int _savedAllParticles = 0;
         private Dictionary<MeshRenderer, MeshFilter> _fallbackMeshes = new Dictionary<MeshRenderer, MeshFilter>();
         #endregion
 
@@ -52,11 +53,17 @@ namespace VRCExtended
             get => _volumeVoice;
             set
             {
-                foreach(AudioSource audio in Avatar.GetComponentsInChildren<AudioSource>())
+                AudioSource[] sources = Player.gameObject.GetComponentsInChildren<AudioSource>();
+
+                foreach(AudioSource source in sources)
                 {
-                    audio.volume = value;
-                    _volumeVoice = value;
+                    if(source.name == "USpeak" || source.name == "Speaker")
+                    {
+                        ExtendedLogger.Log("Found " + source.name + " volume: " + source.volume);
+                        source.volume = value;
+                    }
                 }
+                _volumeVoice = value;
                 /*if (Voice == null)
                     return;
                 ExtendedLogger.Log("Test");
@@ -73,7 +80,7 @@ namespace VRCExtended
         #region Setup Functions
         private void Setup()
         {
-            AvatarManager.OnAvatarCreated += OnAvatarCreated;
+            AvatarManager.OnAvatarCreated += (GameObject avatar, VRC_AvatarDescriptor avatarDescriptor, bool _1) => OnAvatarCreated();
 
             ExtendedUser self = ExtendedServer.Users.FirstOrDefault(a => a.APIUser == APIUser);
             if(self != null)
@@ -92,7 +99,7 @@ namespace VRCExtended
         #endregion
 
         #region Avatar Events
-        void OnAvatarCreated(GameObject avatar, VRC_AvatarDescriptor avatarDescriptor, bool _1)
+        internal void OnAvatarCreated()
         {
             if (ModPrefs.GetBool("vrcextended", "userSpecificVolume"))
                 VolumeAvatar = _volumeAvatar;
@@ -136,12 +143,23 @@ namespace VRCExtended
                 _fallbackShaders.Clear();
                 RemoveCrashShaders();
 
+                _savedAllParticles = 0;
                 _fallbackParticleLimits.Clear();
                 LimitParticles();
 
                 _fallbackMeshes.Clear();
                 RemoveCrashMesh();
             }
+        }
+        #endregion
+
+        #region LocalColliders Functions
+        public void RemoveLocalColliders()
+        {
+            foreach(DynamicBone bone in Bones)
+                foreach(DynamicBoneCollider collider in bone.m_Colliders.ToArray())
+                    if (!BoneColliders.Contains(collider))
+                        bone.m_Colliders.Remove(collider);
         }
         #endregion
 
@@ -205,21 +223,19 @@ namespace VRCExtended
         {
             if (!ModPrefs.GetBool("vrcextended", "antiCrasher"))
                 return;
-            int maxPerSystem;
 
             // Change cached
-            if (_fallbackParticleLimits.Count > 0)
+            if(_fallbackParticleLimits.Count > 0)
             {
-                maxPerSystem = AntiCrasherConfig.Instance.MaxParticles / _fallbackParticleLimits.Count;
-
-                foreach (ParticleSystem particleSystem in _fallbackParticleLimits.Keys)
+                foreach(ParticleSystem particleSystem in _fallbackParticleLimits.Keys)
                 {
                     ParticleSystem.MainModule mainModule = particleSystem.main;
+                    float percantage = (float)mainModule.maxParticles / _savedAllParticles;
+                    int maxParticles = (int)Math.Floor(percantage * AntiCrasherConfig.Instance.MaxParticles);
 
-                    if (mainModule.maxParticles > maxPerSystem)
-                        mainModule.maxParticles = maxPerSystem;
+                    if (mainModule.maxParticles > maxParticles)
+                        mainModule.maxParticles = maxParticles;
                 }
-                return;
             }
 
             // Change non-cached
@@ -227,17 +243,18 @@ namespace VRCExtended
 
             if (particleSystems.Length < 1)
                 return;
-            maxPerSystem = AntiCrasherConfig.Instance.MaxParticles / particleSystems.Length;
-
+            particleSystems.All(a => { _savedAllParticles += a.main.maxParticles; return true; });
             foreach(ParticleSystem particleSystem in particleSystems)
             {
                 ParticleSystem.MainModule mainModule = particleSystem.main;
+                float percantage = (float)mainModule.maxParticles / _savedAllParticles;
+                int maxParticles = (int)Math.Floor(percantage * AntiCrasherConfig.Instance.MaxParticles);
 
                 if (!_fallbackParticleLimits.ContainsKey(particleSystem))
                     _fallbackParticleLimits.Add(particleSystem, mainModule.maxParticles);
 
-                if (mainModule.maxParticles > maxPerSystem)
-                    mainModule.maxParticles = maxPerSystem;
+                if (mainModule.maxParticles > maxParticles)
+                    mainModule.maxParticles = maxParticles;
             }
         }
         public void RestoreParticleLimits()

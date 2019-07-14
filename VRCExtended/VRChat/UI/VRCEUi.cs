@@ -168,8 +168,28 @@ namespace VRChat.UI
             #endregion
 
             #region UserPanel Variables
+            private static Transform _moderator;
+            private static Transform _user;
+
             private static Transform _playlistsButton;
             private static Transform _favoriteButton;
+            private static Transform _reportButton;
+            #endregion
+
+            #region User Variables
+            private static Transform _userActions;
+            #endregion
+
+            #region User Actions Variables
+            private static Transform _voteKickButton;
+            #endregion
+
+            #region Moderator Variables
+            private static Transform _moderatorActions;
+            #endregion
+
+            #region Moderator Actions Variables
+            private static Transform _joinButton;
             #endregion
 
             #region UserInfo Properties
@@ -218,6 +238,33 @@ namespace VRChat.UI
             #endregion
 
             #region UserPanel Properties
+            public static Transform Moderator
+            {
+                get
+                {
+                    if(_moderator == null)
+                    {
+                        if (UserPanel == null)
+                            return null;
+                        _moderator = UserPanel.Find("Moderator");
+                    }
+                    return _moderator;
+                }
+            }
+            public static Transform User
+            {
+                get
+                {
+                    if(_user == null)
+                    {
+                        if (UserPanel == null)
+                            return null;
+                        _user = UserPanel.Find("User");
+                    }
+                    return _user;
+                }
+            }
+
             public static Transform PlaylistsButton
             {
                 get
@@ -242,6 +289,83 @@ namespace VRChat.UI
                         _favoriteButton = UserPanel.Find("Favorite");
                     }
                     return _favoriteButton;
+                }
+            }
+            public static Transform ReportButton
+            {
+                get
+                {
+                    if(_reportButton == null)
+                    {
+                        if (UserPanel == null)
+                            return null;
+                        _reportButton = UserPanel.Find("Report");
+                    }
+                    return _reportButton;
+                }
+            }
+            #endregion
+
+            #region User Properties
+            public static Transform UserActions
+            {
+                get
+                {
+                    if(_userActions == null)
+                    {
+                        if (User == null)
+                            return null;
+                        _userActions = User.Find("Actions");
+                    }
+                    return _userActions;
+                }
+            }
+            #endregion
+
+            #region User Actions Properties
+            public static Transform VoteKickButton
+            {
+                get
+                {
+                    if(_voteKickButton == null)
+                    {
+                        if (UserActions == null)
+                            return null;
+                        _voteKickButton = UserActions.Find("VoteKick");
+                    }
+                    return _voteKickButton;
+                }
+            }
+            #endregion
+
+            #region Moderator Properties
+            public static Transform ModeratorActions
+            {
+                get
+                {
+                    if(_moderatorActions == null)
+                    {
+                        if (Moderator == null)
+                            return null;
+                        _moderatorActions = Moderator.Find("Actions");
+                    }
+                    return _moderatorActions;
+                }
+            }
+            #endregion
+
+            #region Moderator Actions Properties
+            public static Transform JoinButton
+            {
+                get
+                {
+                    if(_joinButton == null)
+                    {
+                        if (ModeratorActions == null)
+                            return null;
+                        _joinButton = ModeratorActions.Find("Join!");
+                    }
+                    return _joinButton;
                 }
             }
             #endregion
