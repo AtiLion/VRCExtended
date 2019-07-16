@@ -20,6 +20,7 @@ using VRCExtended.Patches;
 
 using VRC.Core;
 using VRC.UI;
+using VRCSDK2;
 
 using ModPrefs = VRCTools.ModPrefs;
 
@@ -49,7 +50,6 @@ namespace VRCExtended
         #region UserInfo UI
         public static VRCEUiButton UserInfoMore { get; private set; }
         public static VRCEUiButton UserInfoRefresh { get; private set; }
-        public static VRCEUiButton UserInfoDropPortal { get; private set; }
         #endregion
 
         #region VRCMod Functions
@@ -299,7 +299,6 @@ namespace VRCExtended
                 if(UserInfoMore.Text.text == "More")
                 {
                     UserInfoRefresh.Control.gameObject.SetActive(true);
-                    UserInfoDropPortal.Control.gameObject.SetActive(true);
 
                     btnPlaylists.gameObject.SetActive(false);
                     btnFavorite.gameObject.SetActive(false);
@@ -309,7 +308,6 @@ namespace VRCExtended
                 else
                 {
                     UserInfoRefresh.Control.gameObject.SetActive(false);
-                    UserInfoDropPortal.Control.gameObject.SetActive(false);
 
                     btnPlaylists.gameObject.SetActive(true);
                     btnFavorite.gameObject.SetActive(true);
@@ -337,46 +335,7 @@ namespace VRCExtended
                     ExtendedLogger.LogError(error);
                 });
             });
-
-            UserInfoDropPortal = new VRCEUiButton("DropPortal", new Vector2(pos.x, pos.y - 75f), "Drop Portal", VRCEUi.InternalUserInfoScreen.UserPanel);
-            UserInfoDropPortal.Control.gameObject.SetActive(false);
-            UserInfoDropPortal.Button.onClick.AddListener(() =>
-            {
-                if (Patch_PageUserInfo.SelectedAPI == null)
-                    return;
-                if(string.IsNullOrEmpty(Patch_PageUserInfo.SelectedAPI.location))
-                {
-                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().ShowAlert("Error", "Invalid join location!");
-                    return;
-                }
-                if(Patch_PageUserInfo.SelectedAPI.location == "private")
-                {
-                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().ShowAlert("Error", "The user is in a private world!");
-                    return;
-                }
-                if (Patch_PageUserInfo.SelectedAPI.location == "local")
-                {
-                    VRCUiPopupManagerUtils.GetVRCUiPopupManager().ShowAlert("Error", "The user is in a local world!");
-                    return;
-                }
-                string[] location = Patch_PageUserInfo.SelectedAPI.location.Split(':');
-                API.Fetch<ApiWorld>(location[0], (ApiContainer worldContainer) => {
-                    ApiWorld world = (ApiWorld)worldContainer.Model;
-                    ApiWorldInstance instance = world.worldInstances.FirstOrDefault(inst => inst != null && inst.idOnly == location[1]);
-
-                    if (instance.InstanceType != ApiWorldInstance.AccessType.Public && instance.InstanceType != ApiWorldInstance.AccessType.FriendsOfGuests)
-                    {
-                        VRCUiPopupManagerUtils.GetVRCUiPopupManager().ShowAlert("Error", "You are only allowed to drop portals to public and friends+ worlds.");
-                        return;
-                    }
-                    PortalInternal.CreatePortal(world, instance, VRCPlayer.Instance.transform.position, VRCPlayer.Instance.transform.forward, true);
-                },
-                (ApiContainer container) => {
-                    if (container != null)
-                        ExtendedLogger.LogError("Error fetching world: " + container.Error);
-                });
-            });
-            ExtendedLogger.Log("Setup PageUserInfo refresh button!");
+            ExtendedLogger.Log("Setup PageUserInfo!");
         }
         private void AddSocialRefresh()
         {
