@@ -40,16 +40,23 @@ namespace VRCExtended
         private bool p_localcolliders;
         private bool p_multilocalcolliders;
         private bool p_selflocalcolliders;
+        private bool p_targetHandColliders;
+        private bool p_fakeColliders;
+        private bool p_fakeCollidersOthers;
+        private bool p_smartColliders;
         #endregion
 
+#if DEBUG
         #region VRCExtended UI Variables
         public static VRCEUiVolumeControl volVoice;
         public static VRCEUiVolumeControl volAvatar;
         #endregion
+#endif
 
         #region UserInfo UI
         public static VRCEUiButton UserInfoMore { get; private set; }
         public static VRCEUiButton UserInfoRefresh { get; private set; }
+        public static VRCEUiButton UserInfoColliderControl { get; private set; }
         #endregion
 
         #region VRCMod Functions
@@ -63,14 +70,24 @@ namespace VRCExtended
             // Exploits
             ModPrefs.RegisterPrefBool("vrcextended", "askUsePortal", true, "Ask to use portal");
             ModPrefs.RegisterPrefBool("vrcextended", "antiCrasher", false, "Prevent crashers");
+#if DEBUG
+            ModPrefs.RegisterPrefBool("vrcextended", "avatarLimiter", false, "Avatar limiter"); // TODO
+#else
+            ModPrefs.RegisterPrefBool("vrcextended", "avatarLimiter", false, "Avatar limiter", true);
+#endif
 
             // Avatar
             ModPrefs.RegisterPrefBool("vrcextended", "localColliders", false, "Local colliders");
             ModPrefs.RegisterPrefBool("vrcextended", "multiLocalColliders", false, "Others have local colliders");
             ModPrefs.RegisterPrefBool("vrcextended", "selfLocalColliders", true, "Others can touch you");
-
-            // Fixes
-            ModPrefs.RegisterPrefBool("vrcextended", "instantQuit", false, "Instantly quit the game");
+            ModPrefs.RegisterPrefBool("vrcextended", "targetHandColliders", true, "Target only hand colliders");
+            ModPrefs.RegisterPrefBool("vrcextended", "fakeColliders", false, "Add fake colliders to self");
+            ModPrefs.RegisterPrefBool("vrcextended", "fakeCollidersOthers", false, "Add fake colliders to others");
+#if DEBUG
+            ModPrefs.RegisterPrefBool("vrcextended", "smartColliders", false, "Use smart colliders"); // TODO
+#else
+            ModPrefs.RegisterPrefBool("vrcextended", "smartColliders", false, "Use smart colliders", true);
+#endif
 
             // Players
 #if DEBUG
@@ -104,6 +121,11 @@ namespace VRCExtended
             {
                 AntiCrasherConfig.CreateDefault();
                 ExtendedLogger.Log("Loaded default AntiCrasher config!");
+            }
+            if (ModManager.Mods.Any(a => a.Name == "QuitFix" && a.Author == "Herp Derpinstine") && !File.Exists("antiCrash.json"))
+            {
+                File.WriteAllText("antiCrash.json", JsonConvert.SerializeObject(AntiCrasherConfig.Instance, Formatting.Indented));
+                ExtendedLogger.Log("Saved AntiCrasher config!");
             }
 
             // Get VolumeControl config
@@ -148,7 +170,11 @@ namespace VRCExtended
             }
             else if(p_localcolliders != ModPrefs.GetBool("vrcextended", "localColliders") ||
                     p_multilocalcolliders != ModPrefs.GetBool("vrcextended", "multiLocalColliders") ||
-                    p_selflocalcolliders != ModPrefs.GetBool("vrcextended", "selfLocalColliders"))
+                    p_selflocalcolliders != ModPrefs.GetBool("vrcextended", "selfLocalColliders") ||
+                    p_fakeColliders != ModPrefs.GetBool("vrcextended", "fakeColliders") ||
+                    p_fakeCollidersOthers != ModPrefs.GetBool("vrcextended", "fakeCollidersOthers") ||
+                    p_smartColliders != ModPrefs.GetBool("vrcextended", "smartColliders") ||
+                    p_targetHandColliders != ModPrefs.GetBool("vrcextended", "targetHandColliders"))
             {
                 // Clear colliders
                 foreach (ExtendedUser user in ExtendedServer.Users)
@@ -160,6 +186,10 @@ namespace VRCExtended
                 p_localcolliders = ModPrefs.GetBool("vrcextended", "localColliders");
                 p_multilocalcolliders = ModPrefs.GetBool("vrcextended", "multiLocalColliders");
                 p_selflocalcolliders = ModPrefs.GetBool("vrcextended", "selfLocalColliders");
+                p_fakeColliders = ModPrefs.GetBool("vrcextended", "fakeColliders");
+                p_fakeCollidersOthers = ModPrefs.GetBool("vrcextended", "fakeCollidersOthers");
+                p_smartColliders = ModPrefs.GetBool("vrcextended", "smartColliders");
+                p_targetHandColliders = ModPrefs.GetBool("vrcextended", "targetHandColliders");
                 ExtendedLogger.Log("Reloaded local colliders!");
             }
         }
@@ -194,26 +224,26 @@ namespace VRCExtended
 
         void OnApplicationQuit()
         {
+            if (ModManager.Mods.Count(a => a.Name == "QuitFix" && a.Author == "Herp Derpinstine") > 1)
+                return;
             if (!File.Exists("antiCrash.json"))
             {
                 File.WriteAllText("antiCrash.json", JsonConvert.SerializeObject(AntiCrasherConfig.Instance, Formatting.Indented));
                 ExtendedLogger.Log("Saved AntiCrasher config!");
             }
-            if (ModPrefs.GetBool("vrcextended", "instantQuit"))
-                Process.GetCurrentProcess().Kill();
-            else
-                ModManager.StartCoroutine(WaitForMods());
         }
-        #endregion
+#endregion
 
-        #region Coroutine Functions
+#region Coroutine Functions
         private IEnumerator WaitForUIManager()
         {
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
 
             // Load modules
+#if DEBUG
             AddUserSpecificVolume();
-            AddUserInfoRefresh();
+#endif
+            AddUserInfoButtons();
             AddSocialRefresh();
 
             // Debug
@@ -228,14 +258,10 @@ namespace VRCExtended
                     ExtendedLogger.Log(" - " + component);
             }*/
         }
-        private IEnumerator WaitForMods()
-        {
-            yield return false;
-            Process.GetCurrentProcess().Kill();
-        }
-        #endregion
+#endregion
 
-        #region Module Loading
+#region Module Loading
+#if DEBUG
         private void AddUserSpecificVolume()
         {
             if (!ModPrefs.GetBool("vrcextended", "userSpecificVolume"))
@@ -273,7 +299,8 @@ namespace VRCExtended
                 Patch_PageUserInfo.SelectedUser.VolumeAvatar = volume;
             });*/
         }
-        private void AddUserInfoRefresh()
+#endif
+        private void AddUserInfoButtons()
         {
             if (VRCEUi.UserInfoScreen == null)
             {
@@ -315,6 +342,21 @@ namespace VRCExtended
                     UserInfoMore.Text.text = "More";
                 }
             });
+
+#if DEBUG
+            UserInfoColliderControl = new VRCEUiButton("ColliderControl", new Vector2(pos.x, pos.y - 75f), "#ERROR#", VRCEUi.InternalUserInfoScreen.UserPanel);
+            UserInfoColliderControl.Control.gameObject.SetActive(false);
+            UserInfoColliderControl.Button.onClick.AddListener(() =>
+            {
+                if (Patch_PageUserInfo.SelectedAPI == null)
+                    return;
+                ExtendedUser user = ExtendedServer.Users.FirstOrDefault(a => a.APIUser.id == Patch_PageUserInfo.SelectedAPI.id);
+
+                if (user == null)
+                    return;
+
+            });
+#endif
 
             UserInfoRefresh = new VRCEUiButton("Refresh", new Vector2(pos.x, pos.y), "Refresh", VRCEUi.InternalUserInfoScreen.UserPanel);
             UserInfoRefresh.Control.gameObject.SetActive(false);
@@ -370,6 +412,6 @@ namespace VRCExtended
                 ExtendedLogger.Log("Refreshed social lists!");
             });
         }
-        #endregion
+#endregion
     }
 }

@@ -50,6 +50,9 @@
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\lib\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.AudioModule">
       <HintPath>..\lib\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
@@ -89,6 +92,7 @@
     <Compile Include="ExtendedLogger.cs" />
     <Compile Include="ExtendedServer.cs" />
     <Compile Include="ExtendedUser.cs" />
+    <Compile Include="LocalCollider.cs" />
     <Compile Include="Patches\PageUserInfo.cs" />
     <Compile Include="Patches\PortalInternal.cs" />
     <Compile Include="VolumeControl.cs" />

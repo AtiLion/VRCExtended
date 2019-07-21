@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,10 +18,12 @@ namespace VRCExtended
 {
     internal class ExtendedUser : VRCEPlayer
     {
+#if DEBUG
         #region Individual Volume Variables
         private float _volumeAvatar = 1f;
         private float _volumeVoice = 1f;
         #endregion
+#endif
 
         #region AntiCrash Variables
         private static Shader _defaultShader;
@@ -31,11 +34,29 @@ namespace VRCExtended
         private Dictionary<MeshRenderer, MeshFilter> _fallbackMeshes = new Dictionary<MeshRenderer, MeshFilter>();
         #endregion
 
+        #region Local Colliders Variables
+        private bool _hasColliders = true;
+        private static FieldInfo fi_m_Direction = typeof(DynamicBoneCollider).GetField("m_Direction", BindingFlags.Public | BindingFlags.Instance);
+        #endregion
+
         #region Local Colliders Properties
         public List<DynamicBoneCollider> BoneColliders { get; private set; } = new List<DynamicBoneCollider>();
         public List<DynamicBone> Bones { get; private set; } = new List<DynamicBone>();
+        public LocalCollider Collider { get; private set; }
+        public bool HasColliders
+        {
+            get
+            {
+                return true; // Yeet for now
+                if(ModPrefs.GetBool("vrcextended", "multiLocalColliders"))
+                {
+
+                }
+            }
+        }
         #endregion
 
+#if DEBUG
         #region Individual Volume Properties
         public float VolumeAvatar
         {
@@ -72,6 +93,7 @@ namespace VRCExtended
             }
         }
         #endregion
+#endif
 
         public ExtendedUser(VRCEPlayer player) : base(player.Player) => Setup();
         public ExtendedUser(Player player) : base(player) => Setup();
@@ -85,8 +107,10 @@ namespace VRCExtended
             ExtendedUser self = ExtendedServer.Users.FirstOrDefault(a => a.APIUser == APIUser);
             if(self != null)
             {
+#if DEBUG
                 _volumeAvatar = self._volumeAvatar;
                 _volumeVoice = self._volumeVoice;
+#endif
 
                 BoneColliders = self.BoneColliders;
                 Bones = self.Bones;
@@ -101,16 +125,20 @@ namespace VRCExtended
         #region Avatar Events
         internal void OnAvatarCreated()
         {
+            if (Avatar == null)
+                return;
+#if DEBUG
             if (ModPrefs.GetBool("vrcextended", "userSpecificVolume"))
                 VolumeAvatar = _volumeAvatar;
+#endif
             if(ModPrefs.GetBool("vrcextended", "localColliders"))
             {
-                foreach(ExtendedUser user in ExtendedServer.Users)
+                foreach (ExtendedUser user in ExtendedServer.Users)
                 {
                     if (user.APIUser == APIUser)
                         continue;
 
-                    if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser == Instance.APIUser)
+                    if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser.id == Instance.APIUser.id)
                         foreach (DynamicBone bone in user.Bones)
                             foreach (DynamicBoneCollider collider in BoneColliders)
                                 if (bone.m_Colliders.Contains(collider))
@@ -119,22 +147,127 @@ namespace VRCExtended
                 BoneColliders.Clear();
                 Bones.Clear();
 
-                BoneColliders.AddRange(Avatar.GetComponentsInChildren<DynamicBoneCollider>(true));
-                Bones.AddRange(Avatar.GetComponentsInChildren<DynamicBone>(true).Where(a => a.m_Colliders.Count > 1));
-
-                foreach(ExtendedUser user in ExtendedServer.Users)
+                if ((ModPrefs.GetBool("vrcextended", "fakeColliders") && IsSelf) || ModPrefs.GetBool("vrcextended", "fakeCollidersOthers"))
                 {
-                    if (user.APIUser == APIUser)
-                        continue;
+                    if (Animator != null)
+                    {
+                        Transform handbone_left = Animator.GetBoneTransform(HumanBodyBones.LeftHand);
+                        Transform handbone_right = Animator.GetBoneTransform(HumanBodyBones.RightHand);
 
-                    if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser == Instance.APIUser)
-                        foreach (DynamicBone bone in Bones)
-                            foreach (DynamicBoneCollider collider in user.BoneColliders)
-                                bone.m_Colliders.Add(collider);
-                    if(ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && user.APIUser == Instance.APIUser) || IsSelf)
-                        foreach (DynamicBone bone in user.Bones)
-                            foreach (DynamicBoneCollider collider in BoneColliders)
-                                bone.m_Colliders.Add(collider);
+                        if (handbone_left != null && handbone_right != null)
+                        {
+                            if (handbone_left.GetComponent<DynamicBoneCollider>() == null && handbone_right.GetComponent<DynamicBoneCollider>() == null)
+                            {
+                                Transform fingerbone_left = Animator.GetBoneTransform(HumanBodyBones.LeftMiddleDistal);
+                                Transform fingerbone_right = Animator.GetBoneTransform(HumanBodyBones.RightMiddleDistal);
+                                Transform thumbbone = Animator.GetBoneTransform(HumanBodyBones.LeftThumbProximal);
+                                Transform pinkybone = Animator.GetBoneTransform(HumanBodyBones.RightRingProximal);
+                                float distance_left = 0.0016f;
+                                float distance_right = 0.0016f;
+                                float distance_hand = 0.0006f;
+                                float power = (float)Math.Pow(10, 2);
+
+                                if (thumbbone != null && pinkybone != null)
+                                {
+                                    distance_hand = (Mathf.Floor(Vector3.Distance(thumbbone.position, pinkybone.position) * power) / power) / 1000f;
+                                    distance_hand += distance_hand / 4f;
+                                }
+                                if (fingerbone_left != null)
+                                    distance_left = ((Mathf.Floor(Vector3.Distance(handbone_left.position, fingerbone_left.position) * power) / power) / 100f) + (distance_hand * 4f);
+                                if (fingerbone_right != null)
+                                    distance_right = ((Mathf.Floor(Vector3.Distance(handbone_right.position, fingerbone_right.position) * power) / power) / 100f) + (distance_hand * 4f);
+                                ExtendedLogger.Log("Collider stats: " + distance_left + ", " + distance_right + ", " + distance_hand);
+                                DynamicBoneCollider handcollider_left = handbone_left.gameObject.AddComponent<DynamicBoneCollider>();
+                                DynamicBoneCollider handcollider_right = handbone_right.gameObject.AddComponent<DynamicBoneCollider>();
+                                //GameObject show_left = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                                //GameObject show_right = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+                                handcollider_left.m_Radius = distance_hand; // 0.0006f
+                                handcollider_left.m_Height = distance_left;
+                                handcollider_left.m_Center = new Vector3(0f, 0f, 0f);
+                                fi_m_Direction.SetValue(handcollider_left, 1);
+                                handcollider_left.m_Bound = 0;
+                                /*show_left.transform.localScale = new Vector3(0.006f, 0.006f, 0.0006f);
+                                show_left.transform.position = handbone_left.position;
+                                show_left.transform.SetParent(handbone_left);*/
+
+
+                                handcollider_right.m_Radius = distance_hand; // 0.0006f
+                                handcollider_right.m_Height = distance_right;
+                                handcollider_right.m_Center = new Vector3(0f, 0f, 0f);
+                                fi_m_Direction.SetValue(handcollider_right, 1);
+                                handcollider_right.m_Bound = 0;
+                                /*show_right.transform.localScale = new Vector3(0.006f, 0.006f, 0.0006f);
+                                show_right.transform.position = handbone_right.position;
+                                show_right.transform.SetParent(handbone_right);*/
+
+                                BoneColliders.Add(handcollider_left);
+                                BoneColliders.Add(handcollider_right);
+                                ExtendedLogger.Log("Added fake colliders to " + APIUser.displayName);
+                            }
+                        }
+                    }
+                }
+
+                if (ModPrefs.GetBool("vrcextended", "smartColliders"))
+                {
+                    if (Collider != null)
+                        GameObject.Destroy(Collider);
+
+                    Transform handbone_left = Animator.GetBoneTransform(HumanBodyBones.LeftHand);
+                    Transform handbone_right = Animator.GetBoneTransform(HumanBodyBones.RightHand);
+
+                    if (handbone_left != null && handbone_right != null && IsSelf)
+                    {
+                        SphereCollider collider_left = handbone_left.gameObject.GetOrAddComponent<SphereCollider>();
+                        SphereCollider collider_right = handbone_right.gameObject.GetOrAddComponent<SphereCollider>();
+
+                        collider_left.radius = 0.002f;
+                        collider_left.enabled = true;
+
+                        collider_right.radius = 0.002f;
+                        collider_right.enabled = true;
+                    }
+                    CapsuleCollider aviCollider = Avatar.GetOrAddComponent<CapsuleCollider>();
+
+                    aviCollider.height = Avatar.transform.localScale.y;
+                    aviCollider.radius = Avatar.transform.localScale.x;
+                    aviCollider.enabled = true;
+                    aviCollider.isTrigger = true;
+
+                    Collider = Avatar.GetOrAddComponent<LocalCollider>();
+                }
+                else
+                {
+                    if (ModPrefs.GetBool("vrcextended", "targetHandColliders") && Animator != null)
+                    {
+                        Transform handbone_left = Animator.GetBoneTransform(HumanBodyBones.LeftHand);
+                        Transform handbone_right = Animator.GetBoneTransform(HumanBodyBones.RightHand);
+
+                        if (handbone_left != null && handbone_right != null) // Can't be too sure
+                        {
+                            BoneColliders.AddRange(handbone_left.GetComponentsInChildren<DynamicBoneCollider>(true));
+                            BoneColliders.AddRange(handbone_right.GetComponentsInChildren<DynamicBoneCollider>(true));
+                        }
+                    }
+                    else
+                        BoneColliders.AddRange(Avatar.GetComponentsInChildren<DynamicBoneCollider>(true));
+                    Bones.AddRange(Avatar.GetComponentsInChildren<DynamicBone>(true).Where(a => a.m_Colliders.Count > 1));
+
+                    foreach (ExtendedUser user in ExtendedServer.Users)
+                    {
+                        if (user.APIUser == APIUser)
+                            continue;
+
+                        if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser == Instance.APIUser)
+                            foreach (DynamicBone bone in Bones)
+                                foreach (DynamicBoneCollider collider in user.BoneColliders)
+                                    bone.m_Colliders.Add(collider);
+                        if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && user.APIUser == Instance.APIUser) || IsSelf)
+                            foreach (DynamicBone bone in user.Bones)
+                                foreach (DynamicBoneCollider collider in BoneColliders)
+                                    bone.m_Colliders.Add(collider);
+                    }
                 }
                 ExtendedLogger.Log("Added local colliders to " + APIUser.displayName + "!");
             }
@@ -160,6 +293,8 @@ namespace VRCExtended
                 foreach(DynamicBoneCollider collider in bone.m_Colliders.ToArray())
                     if (!BoneColliders.Contains(collider))
                         bone.m_Colliders.Remove(collider);
+            if (Collider != null)
+                GameObject.Destroy(Collider);
         }
         #endregion
 

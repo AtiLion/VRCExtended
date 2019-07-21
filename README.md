@@ -23,11 +23,11 @@ If you wish to suggest more features that can improve everyone's lives feel free
 > - Local colliders *[This features let's you interact with other avatar's colliders]*
 >   - Others have local colliders *[You see when a user interacts with another user's colliders]*
 >   - Others can touch you *[You can see when someone interacts with your colliders]*
+>   - Target only hand colliders *[Only the hand colliders are able to interact with other colliders]*
+>   - Fake colliders on self *[Allows you to interact with colliders even if you don't have them]*
+>   - Fake colliders on others *[Allows others to interact with colliders even if they don't have them]*
 > - Refresh user *[This feature let's you refresh the user info instantly]*
 > - Refresh social groups *[This feature let's you refresh the entire social screen]*
-> - Drop portal to friend *[This feature allows you to drop a portal to a friend's world]*
-> - Instantly quit the game *[This feature let's you instantly turn the game off]*
-> - Fix for turning off the game *[This feature fixes the issue when you press exit game and it doesn't exit]*
 
 ## Anti-crasher Information ##
 The anti-crasher configuration file is located inside your VRChat directory under the name "antiCrash.json"
@@ -60,6 +60,7 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 > - Does this mod work in VR? *Yes, the mod is designed to work fully with VR as well as desktop*
 > - Avatars are taking longer to load with local colliders. *An avatar with a ton of colliders will take longer to load as it has to register all of them*
 > - Sometimes all of the colliders go weird. *If an avatar has a world sized bone collider on it, it may cause things to start and look weird as the collider interacts with all of yours*
+> - My game takes a while to close. *Use the [QuitFix mod by HerpDerpinstine](https://github.com/HerpDerpinstine/QuitFix)*
 
 ## How to compile ##
  1. Make sure you have a program that can compile C# code
@@ -76,12 +77,9 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 	- UnityEngine.TextRenderingModule.dll
 	- UnityEngine.UI.dll
 	- UnityEngine.UIModule.dll
+	- UnityEngine.AnimationModule.dll
 	- VRCCore-Standalone.dll
 	- VRCSDK2.dll
 	- VRCModLoader.dll
 	- VRCTools.dll
 4. Use your compiler to compile the code
-
-## Credits ##
-> - HerpDerpinstine - QuitFix
-> - bay0 - Portal To Friend
