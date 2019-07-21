@@ -13,7 +13,7 @@ This mod offers you quality of life improvements in the game VRChat. It adds fea
 Please make sure you have downloaded and installed [VRCModLoader](https://github.com/Slaynash/VRCModLoader) before continuing!
 > 1. Download the latest **Release** version of the mod from the [Releases](https://github.com/AtiLion/VRCExtended/releases) section
 > 2. Navigate to your VRChat directory *(where all the VRChat game files are located)*
-> 3. Drag the DLL file from the downloaded mod ZIP file into the Mods folder
+> 3. Drag/copy the DLL file that you have downloaded into the Mods folder
 > 4. That's it! Now just run the game and the mod should be installed!
 
 ## Features ##
