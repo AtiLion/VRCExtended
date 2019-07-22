@@ -47,12 +47,10 @@ I will try to be as active as I can in adding features and fixing bugs but I can
 > You can contribute by reporting any bugs caused by the mod, as well as requesting features that you think might be useful to others as well as you.
 
 ## Known bugs ##
- - You have to login every time you turn on the game *(This is an issue with the mod loader)*
- - Refresh doesn't work instantly *(This is an issue in how VRChat's API caching works)*
+ - Refresh doesn't work instantly *(This is an issue on VRChat's side)*
 
 ## FAQ ##
 If you have any more questions feel free to ask them in the [Issues](https://github.com/AtiLion/VRCExtended/issues) section.
-> - How do I make it so I don't have to login every time? *You can try using the [AutoRelog mod by Slaynash](https://github.com/Slaynash/AutoRelog)*
 > - How do I report a bug or suggest a feature? *You can create an issue report in the [Issues](https://github.com/AtiLion/VRCExtended/issues) section*
 > - How do I get the debug version of the mod? *Simply install the **Debug** version of the mod found in the [Releases](https://github.com/AtiLion/VRCExtended/releases) section*
 > - Can I suggest a feature that may affect how other's play the game? *No, any requested feature that affects the gameplay of others or is considered unfair will be ignored*

@@ -174,6 +174,7 @@ namespace VRChat.UI
             private static Transform _playlistsButton;
             private static Transform _favoriteButton;
             private static Transform _reportButton;
+            private static Transform _usernameText;
             #endregion
 
             #region User Variables
@@ -302,6 +303,19 @@ namespace VRChat.UI
                         _reportButton = UserPanel.Find("Report");
                     }
                     return _reportButton;
+                }
+            }
+            public static Transform UsernameText
+            {
+                get
+                {
+                    if(_usernameText == null)
+                    {
+                        if (UserPanel == null)
+                            return null;
+                        _usernameText = UserPanel.Find("NameText");
+                    }
+                    return _usernameText;
                 }
             }
             #endregion

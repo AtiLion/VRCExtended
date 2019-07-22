@@ -10,7 +10,7 @@ using VRCExtended;
 
 namespace VRChat.UI
 {
-    public class VRCEUiButton
+    public class VRCEUiText
     {
         #region VRChatExtended Properties
         public bool Success { get; private set; }
@@ -18,32 +18,29 @@ namespace VRChat.UI
 
         #region UI Properties
         public Transform Control { get; private set; }
-        public Transform ButtonControl { get; private set; }
-        public Transform ImageControl { get; private set; }
         public Transform TextControl { get; private set; }
 
         public RectTransform Position { get; private set; }
         #endregion
 
         #region Control Properties
-        public Button Button { get; private set; }
         public Text Text { get; private set; }
         #endregion
 
-        public VRCEUiButton(string name, Vector2 position, string text, Transform parent = null)
+        public VRCEUiText(string name, Vector2 position, string text, Transform parent = null)
         {
             // Get required information
-            Transform orgControl = VRCEUi.InternalUserInfoScreen.FavoriteButton;
-            if(orgControl == null)
+            Transform orgControl = VRCEUi.InternalUserInfoScreen.UsernameText;
+            if (orgControl == null)
             {
-                ExtendedLogger.LogError("Could not find Favorite button!");
+                ExtendedLogger.LogError("Could not find Username text!");
                 Success = false;
                 return;
             }
 
             // Duplicate object
             GameObject goControl = GameObject.Instantiate(orgControl.gameObject);
-            if(goControl == null)
+            if (goControl == null)
             {
                 ExtendedLogger.LogError("Could not duplicate Favorite button!");
                 Success = false;
@@ -52,23 +49,18 @@ namespace VRChat.UI
 
             // Set UI properties
             Control = goControl.transform;
-            ButtonControl = Control.Find("FavoriteButton");
-            ImageControl = ButtonControl.Find("Image");
-            TextControl = Control.GetComponentInChildren<Text>().transform;
+            TextControl = Control.GetComponent<Text>().transform;
 
             // Remove components that may cause issues
             GameObject.DestroyImmediate(Control.GetComponent<RectTransform>());
-            GameObject.DestroyImmediate(ButtonControl.GetComponent<VRCUiButton>());
 
             // Set control properties
-            Button = ButtonControl.GetComponent<Button>();
             Text = TextControl.GetComponent<Text>();
 
             // Set required parts
             if (parent != null)
                 Control.SetParent(parent);
             goControl.name = name;
-            ButtonControl.name = name + "Button";
 
             // Modify RectTransform
             Position = Control.GetComponent<RectTransform>();
@@ -82,7 +74,6 @@ namespace VRChat.UI
 
             // Change UI properties
             Text.text = text;
-            Button.onClick = new Button.ButtonClickedEvent();
 
             // Finish
             Success = true;

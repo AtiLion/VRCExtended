@@ -101,6 +101,7 @@
     <Compile Include="VRChat\Obfuscation\OBFUnityActionInternal.cs" />
     <Compile Include="VRChat\UI\VRCEUi.cs" />
     <Compile Include="VRChat\UI\VRCEUiButton.cs" />
+    <Compile Include="VRChat\UI\VRCEUiText.cs" />
     <Compile Include="VRChat\UI\VRCEUiVolumeControl.cs" />
     <Compile Include="VRChat\VRCEPlayer.cs" />
     <Compile Include="VRChat\VRCPlayerManager.cs" />

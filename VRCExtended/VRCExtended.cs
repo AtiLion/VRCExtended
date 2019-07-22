@@ -57,6 +57,7 @@ namespace VRCExtended
         public static VRCEUiButton UserInfoMore { get; private set; }
         public static VRCEUiButton UserInfoRefresh { get; private set; }
         public static VRCEUiButton UserInfoColliderControl { get; private set; }
+        public static VRCEUiText UserInfoLastLogin { get; private set; }
         #endregion
 
         #region VRCMod Functions
@@ -66,6 +67,9 @@ namespace VRCExtended
 
             // Setup config
             ModPrefs.RegisterCategory("vrcextended", "VRCExtended");
+
+            // VRCExtended
+            ModPrefs.RegisterPrefBool("vrcextended", "useDTFormat", false, "Use American format");
 
             // Exploits
             ModPrefs.RegisterPrefBool("vrcextended", "askUsePortal", true, "Ask to use portal");
@@ -247,7 +251,7 @@ namespace VRCExtended
             AddSocialRefresh();
 
             // Debug
-            /*Transform target = VRCEUi.InternalUserInfoScreen.Moderator.Find("Mic Controls");
+            /*Transform target = VRCEUi.InternalUserInfoScreen.UserPanel;
             ExtendedLogger.Log("Transform: " + target.name);
             foreach (Component component in target.GetComponents<Component>())
                 ExtendedLogger.Log(" - " + component);
@@ -317,6 +321,9 @@ namespace VRCExtended
                 return;
             }
             Vector3 pos = btnPlaylists.GetComponent<RectTransform>().localPosition;
+
+            UserInfoLastLogin = new VRCEUiText("LastLoginText", new Vector2(-470f, -130f), "", VRCEUi.UserInfoScreen.transform);
+            UserInfoLastLogin.Text.fontSize -= 20;
 
             UserInfoMore = new VRCEUiButton("More", new Vector2(pos.x, pos.y + 75f), "More", VRCEUi.InternalUserInfoScreen.UserPanel);
             UserInfoMore.Button.onClick.AddListener(() =>
@@ -406,8 +413,9 @@ namespace VRCExtended
                 foreach(UiUserList userList in userLists)
                 {
                     userList.ClearAll();
-                    userList.FetchAndRenderElementsForCurrentPage();
-                    userList.RefreshData();
+                    userList.Refresh();
+                    /*userList.FetchAndRenderElementsForCurrentPage();
+                    userList.RefreshData();*/
                 }
                 ExtendedLogger.Log("Refreshed social lists!");
             });

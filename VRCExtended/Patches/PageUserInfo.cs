@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using VRChat.UI;
+
 using VRC;
 using VRC.UI;
 using VRC.Core;
@@ -43,13 +45,31 @@ namespace VRCExtended.Patches
         {
             SelectedAPI = __instance.user;
 
+            VRCEUi.InternalUserInfoScreen.Moderator.gameObject.SetActive(false);
             if (APIUser.CurrentUser.id == __instance.user.id)
             {
-                VRCExtended.UserInfoRefresh.Button.interactable = false;
+                VRCExtended.UserInfoLastLogin.Text.text = "";
+                VRCExtended.UserInfoMore.Button.interactable = false;
             }
             else
             {
-                VRCExtended.UserInfoRefresh.Button.interactable = true;
+                APIUser.FetchUser(__instance.user.id, (APIUser user) =>
+                {
+                    if (string.IsNullOrEmpty(user.last_login))
+                        return;
+                    DateTime dt = DateTime.Parse(user.last_login);
+                    ExtendedLogger.Log(user.last_login);
+
+                    if (ModPrefs.GetBool("vrcextended", "useDTFormat"))
+                        VRCExtended.UserInfoLastLogin.Text.text = "Last login: " + dt.ToString("MM.dd.yyyy hh:mm tt");
+                    else
+                        VRCExtended.UserInfoLastLogin.Text.text = "Last login: " + dt.ToString("dd.MM.yyyy hh:mm");
+                },
+                (string error) =>
+                {
+                    ExtendedLogger.LogError(error);
+                });
+                VRCExtended.UserInfoMore.Button.interactable = true;
             }
         }
     }
