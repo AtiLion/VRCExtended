@@ -92,7 +92,8 @@
     <Compile Include="ExtendedLogger.cs" />
     <Compile Include="ExtendedServer.cs" />
     <Compile Include="ExtendedUser.cs" />
-    <Compile Include="LocalCollider.cs" />
+    <Compile Include="GameScripts\LocalCollider.cs" />
+    <Compile Include="GameScripts\PauseDetection.cs" />
     <Compile Include="Patches\PageUserInfo.cs" />
     <Compile Include="Patches\PortalInternal.cs" />
     <Compile Include="VolumeControl.cs" />

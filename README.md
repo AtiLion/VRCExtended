@@ -26,8 +26,14 @@ If you wish to suggest more features that can improve everyone's lives feel free
 >   - Target only hand colliders *[Only the hand colliders are able to interact with other colliders]*
 >   - Fake colliders on self *[Allows you to interact with colliders even if you don't have them]*
 >   - Fake colliders on others *[Allows others to interact with colliders even if they don't have them]*
+>	- User specific colliders *[Enable/Disable colliders per user]*
+>	- Ignore "Pull" colliders *[Ignores colliders set to pull]*
 > - Refresh user *[This feature let's you refresh the user info instantly]*
 > - Refresh social groups *[This feature let's you refresh the entire social screen]*
+> - FPS management *[Lowers your FPS to 5 when the game is out of focus]*
+> - Unlimited FPS *[Sets your max FPS to unlimited]*
+> - Disable portals *[Disables all portals]*
+> - Last login
 
 ## Anti-crasher Information ##
 The anti-crasher configuration file is located inside your VRChat directory under the name "antiCrash.json"

@@ -44,7 +44,9 @@ namespace VRCExtended.Patches
         private static void SetupUserInfo(PageUserInfo __instance)
         {
             SelectedAPI = __instance.user;
+            ExtendedUser eUser = ExtendedServer.Users.FirstOrDefault(a => a.UniqueID == SelectedAPI.id);
 
+            VRCExtended.ToggleUserInfoMore(false);
             VRCEUi.InternalUserInfoScreen.Moderator.gameObject.SetActive(false);
             if (APIUser.CurrentUser.id == __instance.user.id)
             {
@@ -58,7 +60,6 @@ namespace VRCExtended.Patches
                     if (string.IsNullOrEmpty(user.last_login))
                         return;
                     DateTime dt = DateTime.Parse(user.last_login);
-                    ExtendedLogger.Log(user.last_login);
 
                     if (ModPrefs.GetBool("vrcextended", "useDTFormat"))
                         VRCExtended.UserInfoLastLogin.Text.text = "Last login: " + dt.ToString("MM.dd.yyyy hh:mm tt");
@@ -70,6 +71,17 @@ namespace VRCExtended.Patches
                     ExtendedLogger.LogError(error);
                 });
                 VRCExtended.UserInfoMore.Button.interactable = true;
+
+                if(eUser != null)
+                {
+                    VRCExtended.UserInfoColliderControl.Button.interactable = true;
+                    VRCExtended.UserInfoColliderControl.Text.text = (eUser.HasColliders ? "Disable colliders" : "Enable colliders");
+                }
+                else
+                {
+                    VRCExtended.UserInfoColliderControl.Button.interactable = false;
+                    VRCExtended.UserInfoColliderControl.Text.text = "Not in world!";
+                }
             }
         }
     }

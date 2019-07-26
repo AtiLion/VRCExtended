@@ -12,6 +12,8 @@ using VRCTools;
 
 using UnityEngine;
 
+using VRCExtended.GameScripts;
+
 using VRC_AvatarDescriptor = VRCSDK2.VRC_AvatarDescriptor;
 
 namespace VRCExtended
@@ -35,8 +37,8 @@ namespace VRCExtended
         #endregion
 
         #region Local Colliders Variables
-        private bool _hasColliders = true;
         private static FieldInfo fi_m_Direction = typeof(DynamicBoneCollider).GetField("m_Direction", BindingFlags.Public | BindingFlags.Instance);
+        private bool _hasColliders = true;
         #endregion
 
         #region Local Colliders Properties
@@ -45,13 +47,12 @@ namespace VRCExtended
         public LocalCollider Collider { get; private set; }
         public bool HasColliders
         {
-            get
+            get => _hasColliders;
+            set
             {
-                return true; // Yeet for now
-                if(ModPrefs.GetBool("vrcextended", "multiLocalColliders"))
-                {
-
-                }
+                _hasColliders = value;
+                RemoveLocalColliders();
+                OnAvatarCreated();
             }
         }
         #endregion
@@ -112,6 +113,7 @@ namespace VRCExtended
                 _volumeVoice = self._volumeVoice;
 #endif
 
+                _hasColliders = self._hasColliders;
                 BoneColliders = self.BoneColliders;
                 Bones = self.Bones;
 
@@ -131,7 +133,7 @@ namespace VRCExtended
             if (ModPrefs.GetBool("vrcextended", "userSpecificVolume"))
                 VolumeAvatar = _volumeAvatar;
 #endif
-            if(ModPrefs.GetBool("vrcextended", "localColliders"))
+            if(ModPrefs.GetBool("vrcextended", "localColliders") && HasColliders)
             {
                 foreach (ExtendedUser user in ExtendedServer.Users)
                 {
@@ -222,14 +224,19 @@ namespace VRCExtended
                         SphereCollider collider_left = handbone_left.gameObject.GetOrAddComponent<SphereCollider>();
                         SphereCollider collider_right = handbone_right.gameObject.GetOrAddComponent<SphereCollider>();
 
+                        collider_left.tag = "handCollider";
                         collider_left.radius = 0.002f;
                         collider_left.enabled = true;
+                        collider_left.isTrigger = true;
 
+                        collider_right.tag = "handCollider";
                         collider_right.radius = 0.002f;
                         collider_right.enabled = true;
+                        collider_right.isTrigger = true;
                     }
                     CapsuleCollider aviCollider = Avatar.GetOrAddComponent<CapsuleCollider>();
 
+                    aviCollider.tag = "player";
                     aviCollider.height = Avatar.transform.localScale.y;
                     aviCollider.radius = Avatar.transform.localScale.x;
                     aviCollider.enabled = true;
@@ -251,7 +258,7 @@ namespace VRCExtended
                         }
                     }
                     else
-                        BoneColliders.AddRange(Avatar.GetComponentsInChildren<DynamicBoneCollider>(true));
+                        BoneColliders.AddRange(Avatar.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => !ModPrefs.GetBool("vrcextended", "ignoreInsideColliders") || (int)a.m_Bound != 1));
                     Bones.AddRange(Avatar.GetComponentsInChildren<DynamicBone>(true).Where(a => a.m_Colliders.Count > 1));
 
                     foreach (ExtendedUser user in ExtendedServer.Users)

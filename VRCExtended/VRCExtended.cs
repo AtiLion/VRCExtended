@@ -16,6 +16,7 @@ using VRChat.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
+using VRCExtended.GameScripts;
 using VRCExtended.Patches;
 
 using VRC.Core;
@@ -27,8 +28,9 @@ using ModPrefs = VRCTools.ModPrefs;
 namespace VRCExtended
 {
     // Crasher: 150k polygons in a mesh, tons of particles, shader blacklisting
+    // Note to self: Message system is in the game, Notification | Type: message or broadcast
 
-    [VRCModInfo("VRCExtended", "0.0.1.0", "AtiLion")]
+    [VRCModInfo("VRCExtended", "0.0.4.0", "AtiLion")]
     internal class VRCExtended : VRCMod
     {
         #region VRCExtended Variables
@@ -44,6 +46,8 @@ namespace VRCExtended
         private bool p_fakeColliders;
         private bool p_fakeCollidersOthers;
         private bool p_smartColliders;
+        private bool p_ignoreInsideColliders;
+        private bool p_unlimitedFPS;
         #endregion
 
 #if DEBUG
@@ -52,6 +56,11 @@ namespace VRCExtended
         public static VRCEUiVolumeControl volAvatar;
         #endregion
 #endif
+
+        #region VRCExtended Properties
+        public static GameObject ScriptObject { get; private set; }
+        public static int FrameRate { get; private set; } = 90;
+        #endregion
 
         #region UserInfo UI
         public static VRCEUiButton UserInfoMore { get; private set; }
@@ -70,9 +79,12 @@ namespace VRCExtended
 
             // VRCExtended
             ModPrefs.RegisterPrefBool("vrcextended", "useDTFormat", false, "Use American format");
+            ModPrefs.RegisterPrefBool("vrcextended", "fpsManagement", false, "FPS management");
+            ModPrefs.RegisterPrefBool("vrcextended", "unlimitedFPS", false, "Unlimited FPS");
 
             // Exploits
             ModPrefs.RegisterPrefBool("vrcextended", "askUsePortal", true, "Ask to use portal");
+            ModPrefs.RegisterPrefBool("vrcextended", "disablePortal", false, "Disable portals");
             ModPrefs.RegisterPrefBool("vrcextended", "antiCrasher", false, "Prevent crashers");
 #if DEBUG
             ModPrefs.RegisterPrefBool("vrcextended", "avatarLimiter", false, "Avatar limiter"); // TODO
@@ -87,6 +99,7 @@ namespace VRCExtended
             ModPrefs.RegisterPrefBool("vrcextended", "targetHandColliders", true, "Target only hand colliders");
             ModPrefs.RegisterPrefBool("vrcextended", "fakeColliders", false, "Add fake colliders to self");
             ModPrefs.RegisterPrefBool("vrcextended", "fakeCollidersOthers", false, "Add fake colliders to others");
+            ModPrefs.RegisterPrefBool("vrcextended", "ignoreInsideColliders", true, "Ignore pull colliders");
 #if DEBUG
             ModPrefs.RegisterPrefBool("vrcextended", "smartColliders", false, "Use smart colliders"); // TODO
 #else
@@ -105,6 +118,17 @@ namespace VRCExtended
             p_localcolliders = ModPrefs.GetBool("vrcextended", "localColliders");
             p_multilocalcolliders = ModPrefs.GetBool("vrcextended", "multiLocalColliders");
             p_selflocalcolliders = ModPrefs.GetBool("vrcextended", "selfLocalColliders");
+            p_targetHandColliders = ModPrefs.GetBool("vrcextended", "targetHandColliders");
+            p_fakeColliders = ModPrefs.GetBool("vrcextended", "fakeColliders");
+            p_fakeCollidersOthers = ModPrefs.GetBool("vrcextended", "fakeCollidersOthers");
+            p_smartColliders = ModPrefs.GetBool("vrcextended", "smartColliders");
+            p_ignoreInsideColliders = ModPrefs.GetBool("vrcextended", "ignoreInsideColliders");
+            p_unlimitedFPS = ModPrefs.GetBool("vrcextended", "unlimitedFPS");
+
+            // Add scripts
+            ScriptObject = new GameObject();
+            ScriptObject.AddComponent<PauseDetection>();
+            GameObject.DontDestroyOnLoad(ScriptObject);
 
             // Get AntiCrasher config
             if (File.Exists("antiCrash.json"))
@@ -178,7 +202,8 @@ namespace VRCExtended
                     p_fakeColliders != ModPrefs.GetBool("vrcextended", "fakeColliders") ||
                     p_fakeCollidersOthers != ModPrefs.GetBool("vrcextended", "fakeCollidersOthers") ||
                     p_smartColliders != ModPrefs.GetBool("vrcextended", "smartColliders") ||
-                    p_targetHandColliders != ModPrefs.GetBool("vrcextended", "targetHandColliders"))
+                    p_targetHandColliders != ModPrefs.GetBool("vrcextended", "targetHandColliders") ||
+                    p_ignoreInsideColliders != ModPrefs.GetBool("vrcextended", "ignoreInsideColliders"))
             {
                 // Clear colliders
                 foreach (ExtendedUser user in ExtendedServer.Users)
@@ -194,7 +219,16 @@ namespace VRCExtended
                 p_fakeCollidersOthers = ModPrefs.GetBool("vrcextended", "fakeCollidersOthers");
                 p_smartColliders = ModPrefs.GetBool("vrcextended", "smartColliders");
                 p_targetHandColliders = ModPrefs.GetBool("vrcextended", "targetHandColliders");
+                p_ignoreInsideColliders = ModPrefs.GetBool("vrcextended", "ignoreInsideColliders");
                 ExtendedLogger.Log("Reloaded local colliders!");
+            }
+            else if(p_unlimitedFPS != ModPrefs.GetBool("vrcextended", "unlimitedFPS"))
+            {
+                if (ModPrefs.GetBool("vrcextended", "unlimitedFPS"))
+                    Application.targetFrameRate = 0;
+                else
+                    Application.targetFrameRate = FrameRate;
+                p_unlimitedFPS = ModPrefs.GetBool("vrcextended", "unlimitedFPS");
             }
         }
 
@@ -205,6 +239,12 @@ namespace VRCExtended
 
             if(level == 1 && !_initialized)
             {
+                // Setup FPS manager
+                FrameRate = Application.targetFrameRate;
+                ExtendedLogger.Log("Captured default FPS: " + FrameRate);
+                if (ModPrefs.GetBool("vrcextended", "unlimitedFPS"))
+                    Application.targetFrameRate = 0;
+
                 // Setup systems
                 VRCPlayerManager.Setup();
                 VRCEPlayer.Setup();
@@ -262,9 +302,44 @@ namespace VRCExtended
                     ExtendedLogger.Log(" - " + component);
             }*/
         }
-#endregion
+        #endregion
 
-#region Module Loading
+        #region Module Functions
+        public static void ToggleUserInfoMore(bool enabled)
+        {
+            Transform btnPlaylists = VRCEUi.InternalUserInfoScreen.PlaylistsButton;
+            Transform btnFavorite = VRCEUi.InternalUserInfoScreen.FavoriteButton;
+            Transform btnReport = VRCEUi.InternalUserInfoScreen.ReportButton;
+            if (btnPlaylists == null || btnFavorite == null || btnReport == null)
+            {
+                ExtendedLogger.LogError("Failed to get required button!");
+                return;
+            }
+
+            if (enabled)
+            {
+                UserInfoRefresh.Control.gameObject.SetActive(true);
+                UserInfoColliderControl.Control.gameObject.SetActive(true);
+
+                btnPlaylists.gameObject.SetActive(false);
+                btnFavorite.gameObject.SetActive(false);
+                btnReport.gameObject.SetActive(false);
+                UserInfoMore.Text.text = "Less";
+            }
+            else
+            {
+                UserInfoRefresh.Control.gameObject.SetActive(false);
+                UserInfoColliderControl.Control.gameObject.SetActive(false);
+
+                btnPlaylists.gameObject.SetActive(true);
+                btnFavorite.gameObject.SetActive(true);
+                btnReport.gameObject.SetActive(true);
+                UserInfoMore.Text.text = "More";
+            }
+        }
+        #endregion
+
+        #region Module Loading
 #if DEBUG
         private void AddUserSpecificVolume()
         {
@@ -330,28 +405,10 @@ namespace VRCExtended
             {
                 if (Patch_PageUserInfo.SelectedAPI == null)
                     return;
-                if(UserInfoMore.Text.text == "More")
-                {
-                    UserInfoRefresh.Control.gameObject.SetActive(true);
-
-                    btnPlaylists.gameObject.SetActive(false);
-                    btnFavorite.gameObject.SetActive(false);
-                    btnReport.gameObject.SetActive(false);
-                    UserInfoMore.Text.text = "Less";
-                }
-                else
-                {
-                    UserInfoRefresh.Control.gameObject.SetActive(false);
-
-                    btnPlaylists.gameObject.SetActive(true);
-                    btnFavorite.gameObject.SetActive(true);
-                    btnReport.gameObject.SetActive(true);
-                    UserInfoMore.Text.text = "More";
-                }
+                ToggleUserInfoMore(UserInfoMore.Text.text == "More");
             });
 
-#if DEBUG
-            UserInfoColliderControl = new VRCEUiButton("ColliderControl", new Vector2(pos.x, pos.y - 75f), "#ERROR#", VRCEUi.InternalUserInfoScreen.UserPanel);
+            UserInfoColliderControl = new VRCEUiButton("ColliderControl", new Vector2(pos.x, pos.y - 75f), "Not in world!", VRCEUi.InternalUserInfoScreen.UserPanel);
             UserInfoColliderControl.Control.gameObject.SetActive(false);
             UserInfoColliderControl.Button.onClick.AddListener(() =>
             {
@@ -361,9 +418,9 @@ namespace VRCExtended
 
                 if (user == null)
                     return;
-
+                user.HasColliders = !user.HasColliders;
+                UserInfoColliderControl.Text.text = (user.HasColliders ? "Disable colliders" : "Enable colliders");
             });
-#endif
 
             UserInfoRefresh = new VRCEUiButton("Refresh", new Vector2(pos.x, pos.y), "Refresh", VRCEUi.InternalUserInfoScreen.UserPanel);
             UserInfoRefresh.Control.gameObject.SetActive(false);
@@ -413,9 +470,9 @@ namespace VRCExtended
                 foreach(UiUserList userList in userLists)
                 {
                     userList.ClearAll();
+                    userList.RefreshData();
                     userList.Refresh();
-                    /*userList.FetchAndRenderElementsForCurrentPage();
-                    userList.RefreshData();*/
+                    userList.Refresh(); // Don't question it
                 }
                 ExtendedLogger.Log("Refreshed social lists!");
             });

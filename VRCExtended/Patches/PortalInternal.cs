@@ -37,10 +37,11 @@ namespace VRCExtended.Patches
 
         private static bool Enter(PortalInternal __instance, MethodInfo __originalMethod)
         {
+            if (ModPrefs.GetBool("vrcextended", "disablePortal"))
+                return false;
             if (portalEnter == __instance)
                 return true;
 
-            ExtendedLogger.Log("User entered portal");
             if (ModPrefs.GetBool("vrcextended", "askUsePortal"))
             {
                 VRCUiPopupManagerUtils.ShowPopup("Enter Portal", "Do you really want to enter the portal?", "No", delegate ()
