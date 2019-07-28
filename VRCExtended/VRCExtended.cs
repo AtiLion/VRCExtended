@@ -31,7 +31,7 @@ namespace VRCExtended
     // Crasher: 150k polygons in a mesh, tons of particles, shader blacklisting
     // Note to self: Message system is in the game, Notification | Type: message or broadcast
 
-    [VRCModInfo("VRCExtended", "0.0.4.1", "AtiLion")]
+    [VRCModInfo("VRCExtended", "0.0.4.2", "AtiLion")]
     internal class VRCExtended : VRCMod
     {
         #region VRCExtended Variables
