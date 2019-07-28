@@ -137,7 +137,7 @@ namespace VRCExtended
             {
                 foreach (ExtendedUser user in ExtendedServer.Users)
                 {
-                    if (user.APIUser == APIUser)
+                    if (user.APIUser.id == APIUser.id)
                         continue;
 
                     if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser.id == Instance.APIUser.id)
@@ -253,8 +253,8 @@ namespace VRCExtended
 
                         if (handbone_left != null && handbone_right != null) // Can't be too sure
                         {
-                            BoneColliders.AddRange(handbone_left.GetComponentsInChildren<DynamicBoneCollider>(true));
-                            BoneColliders.AddRange(handbone_right.GetComponentsInChildren<DynamicBoneCollider>(true));
+                            BoneColliders.AddRange(handbone_left.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => !ModPrefs.GetBool("vrcextended", "ignoreInsideColliders") || (int)a.m_Bound != 1));
+                            BoneColliders.AddRange(handbone_right.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => !ModPrefs.GetBool("vrcextended", "ignoreInsideColliders") || (int)a.m_Bound != 1));
                         }
                     }
                     else
@@ -263,7 +263,7 @@ namespace VRCExtended
 
                     foreach (ExtendedUser user in ExtendedServer.Users)
                     {
-                        if (user.APIUser == APIUser)
+                        if (user.APIUser.id == APIUser.id)
                             continue;
 
                         if (ModPrefs.GetBool("vrcextended", "multiLocalColliders") || (ModPrefs.GetBool("vrcextended", "selfLocalColliders") && IsSelf) || user.APIUser == Instance.APIUser)
@@ -296,9 +296,10 @@ namespace VRCExtended
         #region LocalColliders Functions
         public void RemoveLocalColliders()
         {
-            foreach(DynamicBone bone in Bones)
+            DynamicBoneCollider[] colliders = Avatar.GetComponentsInChildren<DynamicBoneCollider>(true);
+            foreach (DynamicBone bone in Bones)
                 foreach(DynamicBoneCollider collider in bone.m_Colliders.ToArray())
-                    if (!BoneColliders.Contains(collider))
+                    if (!colliders.Contains(collider))
                         bone.m_Colliders.Remove(collider);
             if (Collider != null)
                 GameObject.Destroy(Collider);
@@ -373,7 +374,7 @@ namespace VRCExtended
                 {
                     ParticleSystem.MainModule mainModule = particleSystem.main;
                     float percantage = (float)mainModule.maxParticles / _savedAllParticles;
-                    int maxParticles = (int)Math.Floor(percantage * AntiCrasherConfig.Instance.MaxParticles);
+                    int maxParticles = (int)Math.Floor(percantage * (float)AntiCrasherConfig.Instance.MaxParticles);
 
                     if (mainModule.maxParticles > maxParticles)
                         mainModule.maxParticles = maxParticles;
@@ -390,7 +391,7 @@ namespace VRCExtended
             {
                 ParticleSystem.MainModule mainModule = particleSystem.main;
                 float percantage = (float)mainModule.maxParticles / _savedAllParticles;
-                int maxParticles = (int)Math.Floor(percantage * AntiCrasherConfig.Instance.MaxParticles);
+                int maxParticles = (int)Math.Floor(percantage * (float)AntiCrasherConfig.Instance.MaxParticles);
 
                 if (!_fallbackParticleLimits.ContainsKey(particleSystem))
                     _fallbackParticleLimits.Add(particleSystem, mainModule.maxParticles);

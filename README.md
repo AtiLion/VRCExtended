@@ -20,6 +20,7 @@ Please make sure you have downloaded and installed [VRCModLoader](https://github
 If you wish to suggest more features that can improve everyone's lives feel free to suggest them.
 > - Ask use portal *[This feature asks you if you wish to enter the portal before you do]*
 > - Anti-crasher *[This feature removes any elements that could crash you]*
+>	- Online shader blacklist *[Downloads the shader blacklist from the repo each launch]*
 > - Local colliders *[This features let's you interact with other avatar's colliders]*
 >   - Others have local colliders *[You see when a user interacts with another user's colliders]*
 >   - Others can touch you *[You can see when someone interacts with your colliders]*
@@ -42,6 +43,7 @@ The anti-crasher configuration file is located inside your VRChat directory unde
 > - ParticleLimit = Limit the amount of particles an avatar can give off
 > - MaxParticles = How many particles an avatar can give off
 > - ShaderBlacklist = Remove shaders based on a blacklist
+> - UseOnlineBlacklist = Downloads the blacklist every launch to keep blacklisted shaders up to date
 > - BlacklistedShaders = The partial names of shaders that are removed if blacklist is enabled
 
 ## Contributing ##
@@ -51,6 +53,7 @@ I will try to be as active as I can in adding features and fixing bugs but I can
 > 
 > **Users:**
 > You can contribute by reporting any bugs caused by the mod, as well as requesting features that you think might be useful to others as well as you.
+> You can also contribute by adding crasher shaders to the [Shader blacklist](https://github.com/AtiLion/VRCExtended/blob/master/ShaderBlacklist.txt)
 
 ## Known bugs ##
  - Refresh doesn't work instantly *(This is an issue on VRChat's side)*
@@ -82,6 +85,7 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 	- UnityEngine.UI.dll
 	- UnityEngine.UIModule.dll
 	- UnityEngine.AnimationModule.dll
+	- UnityEngine.UnityWebRequestModule.dll
 	- VRCCore-Standalone.dll
 	- VRCSDK2.dll
 	- VRCModLoader.dll

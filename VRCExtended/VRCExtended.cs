@@ -15,6 +15,7 @@ using VRChat.UI;
 
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 using VRCExtended.GameScripts;
 using VRCExtended.Patches;
@@ -30,7 +31,7 @@ namespace VRCExtended
     // Crasher: 150k polygons in a mesh, tons of particles, shader blacklisting
     // Note to self: Message system is in the game, Notification | Type: message or broadcast
 
-    [VRCModInfo("VRCExtended", "0.0.4.0", "AtiLion")]
+    [VRCModInfo("VRCExtended", "0.0.4.1", "AtiLion")]
     internal class VRCExtended : VRCMod
     {
         #region VRCExtended Variables
@@ -135,7 +136,11 @@ namespace VRCExtended
             {
                 try
                 {
-                    JsonConvert.DeserializeObject<AntiCrasherConfig>(File.ReadAllText("antiCrash.json"));
+                    if (JsonConvert.DeserializeObject<AntiCrasherConfig>(File.ReadAllText("antiCrash.json")).CheckBackwardsCompatibility())
+                    {
+                        File.WriteAllText("antiCrash.json", JsonConvert.SerializeObject(AntiCrasherConfig.Instance, Formatting.Indented));
+                        ExtendedLogger.Log("Saved AntiCrasher config!");
+                    }
                     ExtendedLogger.Log("Loaded AntiCrasher config!");
                 }
                 catch (Exception ex)
@@ -165,6 +170,8 @@ namespace VRCExtended
 
             // Run coroutines
             ModManager.StartCoroutine(WaitForUIManager());
+            if (ModPrefs.GetBool("vrcextended", "antiCrasher") && AntiCrasherConfig.Instance.UseOnlineBlacklist == true)
+                ModManager.StartCoroutine(LoadShaderBlacklist());
 
             ExtendedLogger.Log("Loaded VRCExtended!");
         }
@@ -279,6 +286,27 @@ namespace VRCExtended
 #endregion
 
 #region Coroutine Functions
+        private IEnumerator LoadShaderBlacklist()
+        {
+            using(UnityWebRequest request = UnityWebRequest.Get("https://raw.githubusercontent.com/AtiLion/VRCExtended/master/ShaderBlacklist.txt"))
+            {
+                yield return request.SendWebRequest();
+
+                if(!request.isNetworkError)
+                {
+                    List<string> blockedShaders = new List<string>();
+
+                    blockedShaders.AddRange(AntiCrasherConfig.Instance.BlacklistedShaders);
+                    foreach(string shader in request.downloadHandler.text.Split('\n'))
+                        if (!string.IsNullOrEmpty(shader) && !blockedShaders.Contains(shader))
+                            blockedShaders.Add(shader);
+                    AntiCrasherConfig.Instance.BlacklistedShaders = blockedShaders.ToArray();
+                    ExtendedLogger.Log("Downloaded shader blacklist!");
+                }
+                else
+                    ExtendedLogger.LogError("Failed to get shader blacklist! " + request.error);
+            }
+        }
         private IEnumerator WaitForUIManager()
         {
             yield return VRCUiManagerUtils.WaitForUiManagerInit();
