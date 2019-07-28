@@ -91,3 +91,6 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 	- VRCModLoader.dll
 	- VRCTools.dll
 4. Use your compiler to compile the code
+
+## Credits ##
+- BlackWolfVR - Shader blacklisting
