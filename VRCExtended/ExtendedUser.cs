@@ -333,15 +333,38 @@ namespace VRCExtended
             {
                 foreach(Material material in renderers[i].materials)
                 {
+                    if (material.shader == null)
+                        continue;
+
+                    if((bool)AntiCrasherConfig.Instance.RemoveUnsupportedShaders) // Maybe Unity will catch it
+                    {
+                        if(!material.shader.isSupported)
+                        {
+                            if (!_fallbackShaders.ContainsKey(material))
+                                _fallbackShaders.Add(material, material.shader);
+
+                            ExtendedLogger.LogWarning("Removed unsupported shader " + material.shader.name + " from " + APIUser.displayName);
+                            material.shader = _defaultShader;
+                            continue;
+                        }
+                    }
+                    if (material.shader.name == "Standard") // Stops people from naming their crash shader "Standard"
+                    {
+                        if (!_fallbackShaders.ContainsKey(material))
+                            _fallbackShaders.Add(material, material.shader);
+
+                        material.shader = _defaultShader;
+                        continue;
+                    }
                     foreach(string blacklistedName in AntiCrasherConfig.Instance.BlacklistedShaders)
                     {
                         if(material.shader.name.ToLower().Contains(blacklistedName))
                         {
                             if (!_fallbackShaders.ContainsKey(material))
                                 _fallbackShaders.Add(material, material.shader);
-                            material.shader = _defaultShader;
 
                             ExtendedLogger.LogWarning("Removed blacklisted shader " + material.shader.name + " from " + APIUser.displayName);
+                            material.shader = _defaultShader;
                             break;
                         }
                     }

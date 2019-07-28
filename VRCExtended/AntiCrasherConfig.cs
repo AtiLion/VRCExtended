@@ -26,6 +26,7 @@ namespace VRCExtended
         #region Shader Crasher
         public bool? ShaderBlacklist { get; set; }
         public bool? UseOnlineBlacklist { get; set; }
+        public bool? RemoveUnsupportedShaders { get; set; }
         public string[] BlacklistedShaders { get; set; }
         #endregion
 
@@ -53,6 +54,8 @@ namespace VRCExtended
                 ShaderBlacklist = true;
             if (UseOnlineBlacklist == null)
                 UseOnlineBlacklist = true;
+            if (RemoveUnsupportedShaders == null)
+                RemoveUnsupportedShaders = false;
             if(BlacklistedShaders == null)
             {
                 BlacklistedShaders = new string[]
@@ -74,8 +77,6 @@ namespace VRCExtended
                     "distancebased",
                     "waifuserp",
                     "loops",
-                    "izzy",
-                    "star",
                     "diebitch",
                     "thotdestroyer" // Thanks Herp Derpinstine
                 };
