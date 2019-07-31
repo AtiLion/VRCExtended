@@ -184,9 +184,20 @@ namespace VRCExtended
                 {
                     foreach(ExtendedUser user in ExtendedServer.Users)
                     {
-                        user.RemoveCrashShaders();
-                        user.LimitParticles();
-                        user.RemoveCrashMesh();
+                        if (user == null || user.Avatar == null)
+                            continue;
+
+                        try
+                        {
+                            user.RemoveCrashShaders();
+                            user.LimitParticles();
+                            user.RemoveCrashMesh();
+                        }
+                        catch (Exception ex)
+                        {
+                            ExtendedLogger.LogError("Error enabeling anti-crasher for user " + user.APIUser.displayName, ex);
+                        }
+                        
                     }
                     ExtendedLogger.Log("Enabled anti crasher!");
                 }
@@ -194,9 +205,19 @@ namespace VRCExtended
                 {
                     foreach (ExtendedUser user in ExtendedServer.Users)
                     {
-                        user.RestoreCrashShaders();
-                        user.RestoreParticleLimits();
-                        user.RestoreCrashMesh();
+                        if (user == null || user.Avatar == null || user.APIUser == null)
+                            continue;
+
+                        try
+                        {
+                            user.RestoreCrashShaders();
+                            user.RestoreParticleLimits();
+                            user.RestoreCrashMesh();
+                        }
+                        catch (Exception ex)
+                        {
+                            ExtendedLogger.LogError("Error disabling anti-crasher for user " + user.APIUser.displayName, ex);
+                        }
                     }
                     ExtendedLogger.Log("Disabled anti crasher!");
                 }
@@ -214,10 +235,12 @@ namespace VRCExtended
             {
                 // Clear colliders
                 foreach (ExtendedUser user in ExtendedServer.Users)
-                    user.RemoveLocalColliders();
+                    if (user != null && user.Avatar != null)
+                        user.RemoveLocalColliders();
                 // Add them back settings based
                 foreach (ExtendedUser user in ExtendedServer.Users)
-                    user.OnAvatarCreated();
+                    if (user != null && user.Avatar != null)
+                        user.OnAvatarCreated();
 
                 p_localcolliders = ModPrefs.GetBool("vrcextended", "localColliders");
                 p_multilocalcolliders = ModPrefs.GetBool("vrcextended", "multiLocalColliders");
