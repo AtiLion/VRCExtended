@@ -93,4 +93,4 @@ If you have any more questions feel free to ask them in the [Issues](https://git
 4. Use your compiler to compile the code
 
 ## Credits ##
-- BadWolfVR - Shader blacklisting
+- BlackWolfVR - Shader blacklisting
