@@ -521,9 +521,9 @@ namespace VRCExtended
                 foreach(UiUserList userList in userLists)
                 {
                     userList.ClearAll();
-                    userList.RefreshData();
                     userList.Refresh();
-                    userList.Refresh(); // Don't question it
+                    userList.FetchAndRenderElementsForCurrentPage();
+                    userList.RefreshData();
                 }
                 ExtendedLogger.Log("Refreshed social lists!");
             });

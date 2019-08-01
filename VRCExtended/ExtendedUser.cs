@@ -303,6 +303,7 @@ namespace VRCExtended
                         bone.m_Colliders.Remove(collider);
             if (Collider != null)
                 GameObject.Destroy(Collider);
+            ExtendedLogger.Log("Removed all local colliders!");
         }
         #endregion
 
@@ -319,8 +320,8 @@ namespace VRCExtended
             {
                 foreach(Material material in _fallbackShaders.Keys)
                 {
-                    material.shader = _defaultShader;
                     ExtendedLogger.LogWarning("Removed blacklisted shader " + material.shader.name + " from " + APIUser.displayName);
+                    material.shader = _defaultShader;
                 }
                 return;
             }
