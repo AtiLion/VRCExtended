@@ -70,7 +70,6 @@ namespace VRCExtended
                     "tessellation",
                     "tessellated",
                     "oofer",
-                    "starnest",
                     "xxx",
                     "dbtc",
                     "kyuzu",
