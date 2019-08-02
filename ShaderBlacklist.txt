@@ -8,7 +8,6 @@ worldkill
 tessellation
 tessellated
 oofer
-starnest
 xxx
 dbtc
 kyuzu
