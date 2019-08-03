@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using VRCExtended.Config.Attributes;
+
 namespace VRCExtended.Config
 {
     internal class ConfigImprovements
     {
-        public bool askUserPortal { get; set; }
-        public bool disablePortal { get; set; }
-        public bool antiCrasher { get; set; }
+        [ConfigItem("Ask to use portal", true)]
+        public bool? askUserPortal { get; set; }
+        [ConfigItem("Disable portals", false)]
+        public bool? disablePortal { get; set; }
 #if DEBUG
-        public bool avatarLimiter { get; set; }
+        [ConfigItem("Limit avatar features", false)]
+        public bool? avatarLimiter { get; set; }
 #endif
     }
 }

@@ -95,7 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AntiCrasherConfig.cs" />
+    <Compile Include="Config\Attributes\ConfigCategoryAttribute.cs" />
+    <Compile Include="Config\Attributes\ConfigItemAttribute.cs" />
     <Compile Include="Config\ConfigAntiCrasher.cs" />
+    <Compile Include="Config\ConfigLocalColliders.cs" />
     <Compile Include="Config\ConfigImprovements.cs" />
     <Compile Include="Config\ConfigMain.cs" />
     <Compile Include="Config\ConfigManager.cs" />
