@@ -48,7 +48,7 @@ namespace VRCExtended
             if (ParticleLimit == null)
                 ParticleLimit = true;
             if (MaxParticles == null)
-                MaxParticles = 200;
+                MaxParticles = 600;
 
             if (ShaderBlacklist == null)
                 ShaderBlacklist = true;
@@ -57,29 +57,7 @@ namespace VRCExtended
             if (RemoveUnsupportedShaders == null)
                 RemoveUnsupportedShaders = false;
             if(BlacklistedShaders == null)
-            {
-                BlacklistedShaders = new string[]
-                {
-                    "pretty",
-                    "bluescreen",
-                    "tesselation",
-                    "tesselated",
-                    "crasher",
-                    "instant crash paralyzer",
-                    "worldkill",
-                    "tessellation",
-                    "tessellated",
-                    "oofer",
-                    "xxx",
-                    "dbtc",
-                    "kyuzu",
-                    "distancebased",
-                    "waifuserp",
-                    "loops",
-                    "diebitch",
-                    "thotdestroyer" // Thanks Herp Derpinstine
-                };
-            }
+                BlacklistedShaders = new string[0];
 
             if (rebuilt)
                 ExtendedLogger.LogWarning("Anti-crasher configuration has been updated!");

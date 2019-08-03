@@ -80,6 +80,9 @@
     <Reference Include="VRCCore-Standalone">
       <HintPath>..\lib\VRCCore-Standalone.dll</HintPath>
     </Reference>
+    <Reference Include="VRCMenuUtils">
+      <HintPath>..\lib\VRCMenuUtils.dll</HintPath>
+    </Reference>
     <Reference Include="VRCModLoader">
       <HintPath>..\lib\VRCModLoader.dll</HintPath>
     </Reference>
@@ -92,23 +95,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AntiCrasherConfig.cs" />
+    <Compile Include="Config\ConfigAntiCrasher.cs" />
+    <Compile Include="Config\ConfigImprovements.cs" />
+    <Compile Include="Config\ConfigMain.cs" />
+    <Compile Include="Config\ConfigManager.cs" />
     <Compile Include="ExtendedLogger.cs" />
-    <Compile Include="ExtendedServer.cs" />
-    <Compile Include="ExtendedUser.cs" />
-    <Compile Include="GameScripts\LocalCollider.cs" />
-    <Compile Include="GameScripts\PauseDetection.cs" />
-    <Compile Include="Patches\PageUserInfo.cs" />
-    <Compile Include="Patches\PortalInternal.cs" />
-    <Compile Include="VolumeControl.cs" />
-    <Compile Include="VRCExtended.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VRChat\Obfuscation\OBFUnityActionInternal.cs" />
-    <Compile Include="VRChat\UI\VRCEUi.cs" />
-    <Compile Include="VRChat\UI\VRCEUiButton.cs" />
-    <Compile Include="VRChat\UI\VRCEUiText.cs" />
-    <Compile Include="VRChat\UI\VRCEUiVolumeControl.cs" />
-    <Compile Include="VRChat\VRCEPlayer.cs" />
-    <Compile Include="VRChat\VRCPlayerManager.cs" />
+    <Compile Include="VRCExtended.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
