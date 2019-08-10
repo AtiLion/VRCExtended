@@ -10,8 +10,24 @@ namespace VRCExtended.Config
     internal class ConfigLocalColliders
     {
         [ConfigItem("Enabled", false)]
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
+        [ConfigItem("Enable for everyone", true)]
+        public bool? EnableForEveryone { get; set; }
+        [ConfigItem("Enable colliders on hands only", true)]
+        public bool? EnableForHandsOnly { get; set; }
+#if DEBUG
+        [ConfigItem("Use smart colliders", false)]
+        public bool? UseSmartColliders { get; set; }
+#endif
 
-        public bool AllPlayerColliders { get; set; }
+        [ConfigItem("Players can interact with other players", false)]
+        public bool? PlayersInteractWithOthers { get; set; }
+        [ConfigItem("Players can interact with you", false)]
+        public bool? PlayersInteractWithMe { get; set; }
+        
+        [ConfigItem("Add fake colliders to yourself", false)]
+        public bool? FakeCollidersMe { get; set; }
+        [ConfigItem("Add fake colliders to others", false)]
+        public bool? FakeCollidersOthers { get; set; }
     }
 }

@@ -94,14 +94,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AntiCrasherConfig.cs" />
     <Compile Include="Config\Attributes\ConfigCategoryAttribute.cs" />
     <Compile Include="Config\Attributes\ConfigItemAttribute.cs" />
+    <Compile Include="Config\Attributes\IConfigAttibute.cs" />
     <Compile Include="Config\ConfigAntiCrasher.cs" />
     <Compile Include="Config\ConfigLocalColliders.cs" />
-    <Compile Include="Config\ConfigImprovements.cs" />
+    <Compile Include="Config\ConfigGeneral.cs" />
     <Compile Include="Config\ConfigMain.cs" />
-    <Compile Include="Config\ConfigManager.cs" />
+    <Compile Include="Config\ManagerConfig.cs" />
+    <Compile Include="Config\ConfigUI.cs" />
+    <Compile Include="Config\ConfigUsers.cs" />
+    <Compile Include="Config\MapConfig.cs" />
     <Compile Include="ExtendedLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VRCExtended.cs" />

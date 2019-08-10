@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VRCExtended.Config.Attributes
 {
-    internal class ConfigCategoryAttribute : Attribute
+    internal class ConfigCategoryAttribute : Attribute, IConfigAttibute
     {
         public string Name { get; private set; }
         public bool Visible { get; private set; }

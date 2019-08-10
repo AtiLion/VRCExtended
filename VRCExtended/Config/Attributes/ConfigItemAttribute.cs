@@ -5,7 +5,7 @@ using System.Text;
 
 namespace VRCExtended.Config.Attributes
 {
-    internal class ConfigItemAttribute : Attribute
+    internal class ConfigItemAttribute : Attribute, IConfigAttibute
     {
         public string Name { get; private set; }
         public object DefaultValue { get; private set; }
