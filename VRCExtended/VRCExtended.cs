@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using VRCMenuUtils;
+
 using VRCModLoader;
 
 using VRCExtended.Config;
+using VRCExtended.UI;
 
 namespace VRCExtended
 {
@@ -29,7 +33,25 @@ namespace VRCExtended
                 ManagerConfig.Load();
             }
 
+            // Load UI
+            ModManager.StartCoroutine(LoadUI());
+
             ExtendedLogger.Log("VRCExtended loaded!");
+        }
+        #endregion
+
+        #region Coroutine Loaders
+        private static IEnumerator LoadUI()
+        {
+            // Wait for VRCMenuUtils
+            yield return VRCMenuUtilsAPI.WaitForInit();
+
+            // Load config UI
+            ExtendedLogger.Log("Loading UIConfig...");
+            yield return UIConfig.Setup();
+
+            // Finish
+            ExtendedLogger.Log("VRCExtended UI loaded!");
         }
         #endregion
     }

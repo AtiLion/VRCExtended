@@ -107,6 +107,8 @@
     <Compile Include="Config\MapConfig.cs" />
     <Compile Include="ExtendedLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\Components\VRCEUiPage.cs" />
+    <Compile Include="UI\UIConfig.cs" />
     <Compile Include="VRCExtended.cs" />
   </ItemGroup>
   <ItemGroup />
