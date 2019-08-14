@@ -16,6 +16,7 @@ namespace VRCExtended
     /* NOTES:
      * ApiGroup.FetchGroupNames(ownerId, ApiGroup.World.value, success, fail) - Get worlds of user
      * ApiGroup.FetchGroupNames(ownerId, ApiGroup.Avatar.value, success, fail) - Get avatars of user[unconfirmed]
+     * Button.colors <- change UI color UwU
     */
 
     [VRCModInfo("VRCExtended", "1.0.0", "AtiLion", "https://github.com/AtiLion/VRCExtended/releases", "vrcextended")]

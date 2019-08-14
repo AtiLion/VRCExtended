@@ -5,13 +5,13 @@ using System.Linq;
 using System.Text;
 
 using UnityEngine;
+using UnityEngine.UI;
 
 using VRCMenuUtils;
 using VRChat.UI;
 using VRChat.UI.QuickMenuUI;
 
 using VRCModLoader;
-using VRCTools;
 
 using VRCExtended.UI.Components;
 
@@ -30,6 +30,8 @@ namespace VRCExtended.UI
 
         #region External UIs
         public static VRCEUiPage ConfigPage { get; private set; }
+        public static ScrollviewConfig ConfigScroll { get; private set; }
+
         public static VRCEUiQuickButton ConfigButton { get; private set; }
         #endregion
 
@@ -69,22 +71,17 @@ namespace VRCExtended.UI
             }
 
             // Setup config button
-            ConfigButton.Button.onClick.AddListener(() =>
+            ConfigButton.OnClick += () =>
             {
                 if (ConfigPage == null)
                     return;
 
-                // Copied from VRCTools
-                VRCUiManagerUtils.GetVRCUiManager().ShowUi(false, true);
-                ModManager.StartCoroutine(QuickMenuUtils.PlaceUiAfterPause());
-                VRCUiManagerUtils.GetVRCUiManager().ShowScreen(ConfigPage.Page);
-            });
+                VRCMenuUtilsAPI.ShowUIPage(ConfigPage.Page);
+            };
 
             // Create config page
             ConfigPage = new VRCEUiPage("ExtendedConfig", "VRCExtended Configuration");
-
-            // Setup config page
-
+            ConfigScroll = new ScrollviewConfig("ExtendedConfigScroll", ConfigPage);
 
             // Finish
             _initialized = true;
