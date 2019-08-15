@@ -82,6 +82,8 @@ namespace VRCExtended.UI
             // Create config page
             ConfigPage = new VRCEUiPage("ExtendedConfig", "VRCExtended Configuration");
             ConfigScroll = new ScrollviewConfig("ExtendedConfigScroll", ConfigPage);
+            UICategoryConfig uiCategory1 = new UICategoryConfig("category1", "Test category 1", ConfigScroll.ContentControl);
+            UICategoryConfig uiCategory2 = new UICategoryConfig("category2", "Test category 2", ConfigScroll.ContentControl);
 
             // Finish
             _initialized = true;

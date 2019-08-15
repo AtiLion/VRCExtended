@@ -71,6 +71,9 @@ namespace VRCExtended.UI.Components
             ContentControl.localPosition = Vector3.zero;
             ContentPosition.localPosition = new Vector3(0f, 0f, 0f);
             ContentPosition.sizeDelta = new Vector2(1500f, 1000f);
+            ContentPosition.anchorMin = new Vector2(0.5f, 1f);
+            ContentPosition.anchorMax = new Vector2(0.5f, 1f);
+            ContentPosition.pivot = new Vector2(0.5f, 1f);
 
             // Setup layout group
             LayoutGroupObject.padding = new RectOffset(2, 2, 2, 2);
@@ -87,15 +90,6 @@ namespace VRCExtended.UI.Components
 
             ScrollRectObject.content = ContentPosition;
             ScrollRectObject.viewport = position;
-
-            for(int i = 0; i < 10; i++)
-            {
-                GameObject obj = new GameObject("Obj" + i, typeof(RectTransform));
-                obj.transform.SetParent(ContentControl);
-
-                Image img = obj.AddComponent<Image>();
-                img.color = new Color(((i + 1f) / 10f), ((i + 1f) / 10f), ((i + 1f) / 10f));
-            }
         }
     }
 }
