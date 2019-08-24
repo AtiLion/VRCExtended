@@ -89,6 +89,10 @@
     <Reference Include="VRCSDK2">
       <HintPath>..\lib\VRCSDK2.dll</HintPath>
     </Reference>
+    <Reference Include="VRCTools, Version=0.6.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\VRCTools.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\Attributes\ConfigCategoryAttribute.cs" />
@@ -106,6 +110,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Components\ScrollviewConfig.cs" />
     <Compile Include="UI\Components\UICategoryConfig.cs" />
+    <Compile Include="UI\Components\UIToggleConfig.cs" />
     <Compile Include="UI\UIConfig.cs" />
     <Compile Include="VRCExtended.cs" />
   </ItemGroup>

@@ -18,6 +18,8 @@ namespace VRCExtended.UI.Components
         public Transform ContentControl { get; private set; }
         
         public Transform HeaderTextControl { get; private set; }
+
+        public RectTransform ContentPosition { get; private set; }
         #endregion
 
         #region Control Properties
@@ -34,7 +36,9 @@ namespace VRCExtended.UI.Components
         public LayoutElement Header_Text_LayoutElementObject { get; private set; }
 
         public Image Content_ImageObject { get; private set; }
-        public LayoutElement Content_LayoutElement { get; private set; }
+        public LayoutElement Content_LayoutElementObject { get; private set; }
+        public VerticalLayoutGroup Content_LayoutGroupObject { get; private set; }
+        public ContentSizeFitter Content_SizeFitterObject { get; private set; }
         #endregion
 
         #region Quick Access Properties
@@ -45,13 +49,13 @@ namespace VRCExtended.UI.Components
         }
         #endregion
 
-        public UICategoryConfig(string name, string text, Transform content)
+        public UICategoryConfig(string name, string text, Font font, Transform content)
         {
             // Create gameobjects
             GameObject goControl = new GameObject(name, typeof(RectTransform));
             GameObject goHeader = new GameObject("Header", typeof(RectTransform));
             GameObject goHeaderText = new GameObject("Text", typeof(RectTransform));
-            GameObject goContent = new GameObject("Content", typeof(RectTransform));
+            GameObject goContent = new GameObject("Content");
 
             // Create control properties
             Control_LayoutGroupObject = goControl.AddComponent<VerticalLayoutGroup>();
@@ -64,13 +68,16 @@ namespace VRCExtended.UI.Components
             Header_Text_TextObject = goHeaderText.AddComponent<Text>();
             Header_Text_LayoutElementObject = goHeaderText.AddComponent<LayoutElement>();
             Content_ImageObject = goContent.AddComponent<Image>();
-            Content_LayoutElement = goContent.AddComponent<LayoutElement>();
+            Content_LayoutElementObject = goContent.AddComponent<LayoutElement>();
+            Content_LayoutGroupObject = goContent.AddComponent<VerticalLayoutGroup>();
+            Content_SizeFitterObject = goContent.AddComponent<ContentSizeFitter>();
 
             // Set UI properties
             Control = goControl.transform;
             HeaderControl = goHeader.transform;
             HeaderTextControl = goHeaderText.transform;
             ContentControl = goContent.transform;
+            ContentPosition = goContent.GetOrAddComponent<RectTransform>();
 
             // Setup category
             Control.SetParent(content);
@@ -128,7 +135,7 @@ namespace VRCExtended.UI.Components
 
             // Setup header text text
             Header_Text_TextObject.text = text;
-            Header_Text_TextObject.font = VRCEUi.QuickMenu.transform.Find("ShortcutMenu/BuildNumText").GetComponent<Text>().font;
+            Header_Text_TextObject.font = font;
             Header_Text_TextObject.color = Color.black;
             Header_Text_TextObject.fontSize = 22;
             Header_Text_TextObject.alignByGeometry = true;
@@ -147,16 +154,32 @@ namespace VRCExtended.UI.Components
             ContentControl.localScale = Vector3.one;
             ContentControl.localRotation = Quaternion.identity;
             ContentControl.localPosition = Vector3.zero;
+            ContentPosition.anchorMin = new Vector2(0.5f, 1f);
+            ContentPosition.anchorMax = new Vector2(0.5f, 1f);
+            ContentPosition.pivot = new Vector2(0.5f, 1f);
 
             // Setup content image
             Content_ImageObject.color = new Color(0f, 0.66f, 0.66f);
 
             // Setup content layout element
-            Content_LayoutElement.ignoreLayout = false;
-            Content_LayoutElement.preferredWidth = 570f;
-            Content_LayoutElement.preferredHeight = 150f;
-            Content_LayoutElement.flexibleWidth = 1f;
-            Content_LayoutElement.layoutPriority = 1;
+            Content_LayoutElementObject.ignoreLayout = false;
+            Content_LayoutElementObject.preferredWidth = 570f;
+            Content_LayoutElementObject.preferredHeight = 150f;
+            Content_LayoutElementObject.flexibleWidth = 1f;
+            Content_LayoutElementObject.layoutPriority = 1;
+
+            // Setup content layout group
+            Content_LayoutGroupObject.padding = new RectOffset(6, 6, 6, 6);
+            Content_LayoutGroupObject.spacing = 6f;
+            Content_LayoutGroupObject.childAlignment = TextAnchor.UpperLeft;
+            Content_LayoutGroupObject.childControlHeight = true;
+            Content_LayoutGroupObject.childControlWidth = true;
+            Content_LayoutGroupObject.childForceExpandHeight = false;
+            Content_LayoutGroupObject.childForceExpandWidth = false;
+
+            // Setup content size fitter
+            Content_SizeFitterObject.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            Content_SizeFitterObject.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         }
     }
 }

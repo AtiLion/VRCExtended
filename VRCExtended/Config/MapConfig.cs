@@ -10,6 +10,10 @@ namespace VRCExtended.Config
 {
     internal class MapConfig
     {
+        #region Map Variables
+        private ManagerConfig.ConfigValueUpdateHandler _onValueUpdate;
+        #endregion
+
         #region Map Properties
         public string Name { get; private set; }
         public bool Visible { get; private set; }
@@ -23,12 +27,16 @@ namespace VRCExtended.Config
         public object Value
         {
             get => Property?.GetValue(Parent, null);
-            set => Property?.SetValue(Parent, value, null);
+            set
+            {
+                Property?.SetValue(Parent, value, null);
+                _onValueUpdate?.Invoke(this);
+            }
         }
         public List<MapConfig> Children { get; private set; }
         #endregion
 
-        public MapConfig(PropertyInfo property, object parent, ref bool forceSave)
+        public MapConfig(PropertyInfo property, object parent, ref bool forceSave, ManagerConfig.ConfigValueUpdateHandler valueUpdateFunc = null)
         {
             // Load attribute
             IConfigAttibute configAttibute = (IConfigAttibute)property.GetCustomAttributes(typeof(IConfigAttibute), true).FirstOrDefault();
@@ -54,7 +62,7 @@ namespace VRCExtended.Config
 
                 foreach(PropertyInfo childProperty in Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    MapConfig map = new MapConfig(childProperty, Value, ref forceSave);
+                    MapConfig map = new MapConfig(childProperty, Value, ref forceSave, valueUpdateFunc);
 
                     if (map.Property != null)
                         Children.Add(map);
@@ -62,6 +70,9 @@ namespace VRCExtended.Config
             }
             else
             {
+                // Set update function
+                _onValueUpdate = valueUpdateFunc;
+
                 if (Value == null)
                 {
                     Value = ((ConfigItemAttribute)configAttibute).DefaultValue;

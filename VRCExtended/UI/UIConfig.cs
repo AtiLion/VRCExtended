@@ -21,6 +21,8 @@ namespace VRCExtended.UI
     {
         #region UI Variables
         private static bool _initialized = false;
+
+        private static Font _font;
         #endregion
 
         #region VRCTools Variables
@@ -44,8 +46,11 @@ namespace VRCExtended.UI
             // Wait for setup
             yield return VRCMenuUtilsAPI.WaitForInit();
 
+            // Grab UI parts
+            _font = VRCEUi.QuickMenu.transform.Find("ShortcutMenu/BuildNumText").GetComponent<Text>().font;
+
             // Add config button
-            if(ModManager.Mods.Any(a => a.Name == "VRCTools" && a.Author == "Slaynash"))
+            if (ModManager.Mods.Any(a => a.Name == "VRCTools" && a.Author == "Slaynash"))
             {
                 // Wait for VRCTools UI
                 ExtendedLogger.Log("Found VRCTools! Hooking into VRCTools UI...");
@@ -82,8 +87,10 @@ namespace VRCExtended.UI
             // Create config page
             ConfigPage = new VRCEUiPage("ExtendedConfig", "VRCExtended Configuration");
             ConfigScroll = new ScrollviewConfig("ExtendedConfigScroll", ConfigPage);
-            UICategoryConfig uiCategory1 = new UICategoryConfig("category1", "Test category 1", ConfigScroll.ContentControl);
-            UICategoryConfig uiCategory2 = new UICategoryConfig("category2", "Test category 2", ConfigScroll.ContentControl);
+            UICategoryConfig uiCategory1 = new UICategoryConfig("category1", "Test category 1", _font, ConfigScroll.ContentControl);
+            UICategoryConfig uiCategory2 = new UICategoryConfig("category2", "Test category 2", _font, ConfigScroll.ContentControl);
+            UIToggleConfig uiConfig1 = new UIToggleConfig("toggle1", "Test toggle 1", _font, false, uiCategory1.ContentControl);
+            UIToggleConfig uiConfig2 = new UIToggleConfig("toggle2", "Test toggle 2", _font, true, uiCategory2.ContentControl);
 
             // Finish
             _initialized = true;

@@ -42,6 +42,11 @@ namespace VRCExtended.Config
         }
         #endregion
 
+        #region ConfigManager Events
+        public delegate void ConfigValueUpdateHandler(MapConfig conf);
+        public static event ConfigValueUpdateHandler OnValueUpdate;
+        #endregion
+
         #region ConfigManager Functions
         public static void Load()
         {
@@ -65,7 +70,7 @@ namespace VRCExtended.Config
             _maps = new List<MapConfig>();
             foreach (PropertyInfo property in typeof(ConfigMain).GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                MapConfig map = new MapConfig(property, _config, ref forceSave);
+                MapConfig map = new MapConfig(property, _config, ref forceSave, OnConfigValueUpdate);
 
                 if (map.Property != null)
                     _maps.Add(map);
@@ -81,6 +86,52 @@ namespace VRCExtended.Config
             try { File.WriteAllText(ConfigFile, JsonConvert.SerializeObject(Config, Formatting.Indented)); }
             catch (Exception ex) { ExtendedLogger.LogError("Failed to save configuration file.", ex); }
             ExtendedLogger.Log("Configuration saved!");
+        }
+
+        public static bool WatchForUpdate(string path, Action func)
+        {
+            string[] fullPath = path.Split('.');
+            MapConfig map = null;
+            int index = 1;
+
+            map = _maps.FirstOrDefault(a => a.Type.Name == fullPath[0]);
+            while(map != null && map.MapType != EMapConfigType.ITEM && index < fullPath.Length)
+                map = map.Children.FirstOrDefault(a => a.Type.Name == fullPath[index++]);
+
+            if(map == null)
+            {
+                ExtendedLogger.LogError($"Failed to setup watcher for {path}! Map not found!");
+                return false;
+            }
+            else if(map.MapType != EMapConfigType.ITEM)
+            {
+                ExtendedLogger.LogError($"Failed to setup watcher for {path}! Provided map is not an item!");
+                return false;
+            }
+
+            OnValueUpdate += (MapConfig conf) =>
+            {
+                if (conf != map)
+                    return;
+
+                try
+                {
+                    func();
+                }
+                catch (Exception ex)
+                {
+                    ExtendedLogger.LogError($"Error while executing watcher for {path}!", ex);
+                }
+            };
+            return true;
+        }
+        #endregion
+
+        #region ConfigManager Event Handlers
+        private static void OnConfigValueUpdate(MapConfig map)
+        {
+            Save();
+            OnValueUpdate?.Invoke(map);
         }
         #endregion
     }
