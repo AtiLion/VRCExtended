@@ -19,9 +19,12 @@ namespace VRCExtended.Config
         [ConfigItem("Disable portals", false)]
         public bool? DisablePortals { get; set; }
 
+#if DEBUG
+        // Requires the new config menu to be set
         [ConfigItem("World brightness", 0f)]
         public float? Brightness { get; set; }
         [ConfigItem("Party mode[Seizure warning]", false)]
         public bool? PartyMode { get; set; }
+#endif
     }
 }

@@ -92,11 +92,14 @@ namespace VRCExtended.Config
         {
             string[] fullPath = path.Split('.');
             MapConfig map = null;
-            int index = 1;
+            int index = 0;
 
-            map = _maps.FirstOrDefault(a => a.Type.Name == fullPath[0]);
+            map = _maps.FirstOrDefault(a => a.Property.Name == fullPath[0]);
             while(map != null && map.MapType != EMapConfigType.ITEM && index < fullPath.Length)
-                map = map.Children.FirstOrDefault(a => a.Type.Name == fullPath[index++]);
+            {
+                index++;
+                map = map.Children.FirstOrDefault(a => a.Property.Name == fullPath[index]);
+            }
 
             if(map == null)
             {
@@ -128,11 +131,8 @@ namespace VRCExtended.Config
         #endregion
 
         #region ConfigManager Event Handlers
-        private static void OnConfigValueUpdate(MapConfig map)
-        {
-            Save();
+        private static void OnConfigValueUpdate(MapConfig map) =>
             OnValueUpdate?.Invoke(map);
-        }
         #endregion
     }
 }

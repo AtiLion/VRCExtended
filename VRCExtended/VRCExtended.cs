@@ -13,6 +13,7 @@ using VRCModLoader;
 using VRCTools;
 using ModPrefs = VRCTools.ModPrefs;
 
+using VRCExtended.Modules;
 using VRCExtended.Config;
 using VRCExtended.UI;
 
@@ -42,6 +43,10 @@ namespace VRCExtended
                 // Load config
                 ExtendedLogger.Log("Loading ManagerConfig...");
                 ManagerConfig.Load();
+
+                // Load modules
+                ExtendedLogger.Log("Loading ManagerModule...");
+                ManagerModule.Setup();
             }
 
             // Use VRCTools mod settings
@@ -58,6 +63,7 @@ namespace VRCExtended
             // Update configs
             if(_configLastCheck == null || (DateTime.Now - _configLastCheck).TotalMilliseconds >= 1000) // Update every second
             {
+                bool save = false;
                 foreach(MapConfig conf in _configWatch)
                 {
                     bool reqBool = ModPrefs.GetBool(conf.Parent.GetType().Name, conf.Name);
@@ -65,8 +71,11 @@ namespace VRCExtended
                     {
                         ExtendedLogger.Log($"Found change in {conf.Name} of category {conf.Parent.GetType().Name} to {reqBool}");
                         conf.Value = reqBool;
+                        save = true;
                     }
                 }
+                if (save)
+                    ManagerConfig.Save();
 
                 _configLastCheck = DateTime.Now;
             }

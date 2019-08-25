@@ -107,6 +107,12 @@
     <Compile Include="Config\ConfigUsers.cs" />
     <Compile Include="Config\MapConfig.cs" />
     <Compile Include="ExtendedLogger.cs" />
+    <Compile Include="Modules\General\FPSManager.cs" />
+    <Compile Include="Modules\General\LightingManager.cs" />
+    <Compile Include="Modules\General\PortalManager.cs" />
+    <Compile Include="Modules\IExtendedModule.cs" />
+    <Compile Include="Modules\ManagerModule.cs" />
+    <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Components\ScrollviewConfig.cs" />
     <Compile Include="UI\Components\UICategoryConfig.cs" />

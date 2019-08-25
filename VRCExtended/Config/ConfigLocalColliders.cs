@@ -15,6 +15,8 @@ namespace VRCExtended.Config
         public bool? EnableForEveryone { get; set; }
         [ConfigItem("Enable colliders on hands only", true)]
         public bool? EnableForHandsOnly { get; set; }
+        [ConfigItem("Disable colliders on distance", true)]
+        public bool? DisableOnDistance { get; set; }
 #if DEBUG
         [ConfigItem("Use smart colliders", false)]
         public bool? UseSmartColliders { get; set; }
