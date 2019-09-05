@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,7 @@ namespace VRCExtended.Modules.General
                 ExtendedLogger.LogError("Failed to setup patches in PortalManager!", ex);
             }
         }
+        public IEnumerator AsyncSetup() { yield break; }
 
         #region Overrides
         private static bool Enter(PortalInternal __instance, MethodInfo __originalMethod)

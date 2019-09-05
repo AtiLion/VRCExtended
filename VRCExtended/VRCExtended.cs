@@ -7,7 +7,10 @@ using System.Text;
 using VRC.Core;
 using VRC.UI;
 
+using UnityEngine;
+
 using VRCMenuUtils;
+using VRChat.UI;
 
 using VRCModLoader;
 using VRCTools;
@@ -106,6 +109,18 @@ namespace VRCExtended
         {
             // Wait for VRCMenuUtils
             yield return VRCMenuUtilsAPI.WaitForInit();
+
+            VRCMenuUtilsAPI.AddQuickMenuButton("test", "Test UI", "Put favourite worlds on the top of the screen", () =>
+            {
+                Transform main = VRCEUi.WorldsScreen.transform.Find("Vertical Scroll View/Viewport/Content");
+                ExtendedLogger.Log($"Main transform null? {main == null}");
+
+                Transform recent = main.Find("Recent");
+                ExtendedLogger.Log($"Recent transform null? {recent == null}, position {recent.GetSiblingIndex()}");
+
+                recent.SetSiblingIndex(0);
+                ExtendedLogger.Log($"New sibling index {recent.GetSiblingIndex()}");
+            });
 
 #if DEBUG
             // Load config UI

@@ -16,6 +16,8 @@ namespace VRCExtended.Config
 
         [ConfigItem("Get a light on your head[Local]", false)]
         public bool? HeadLight { get; set; }
+        [ConfigItem("Get a light on your head", false)]
+        public bool? HeadLightGlobal { get; set; }
         [ConfigItem("Sit on anyone's head", false)]
         public bool? SitOnAnyone { get; set; }
     }

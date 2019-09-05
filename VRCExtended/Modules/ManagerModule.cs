@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,10 @@ using UnityEngine;
 using Harmony;
 
 using VRCExtended.Modules.General;
+using VRCExtended.Modules.UI;
+using VRCExtended.Modules.LocalColliders;
+
+using VRCModLoader;
 
 namespace VRCExtended.Modules
 {
@@ -51,6 +56,8 @@ namespace VRCExtended.Modules
 #if DEBUG
             new LightingManager(),
 #endif
+            new WorldsUI(),
+            new ColliderController()
         };
         public static Dictionary<string, IExtendedModule> Modules { get; private set; } = new Dictionary<string, IExtendedModule>();
         #endregion
@@ -64,6 +71,8 @@ namespace VRCExtended.Modules
                 try
                 {
                     module.Setup();
+                    ModManager.StartCoroutine(module.AsyncSetup());
+
                     Modules.Add(module.GetType().Name, module);
                     ExtendedLogger.Log($"Loaded module {module.GetType().Name}!");
                 }

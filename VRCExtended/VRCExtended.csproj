@@ -111,14 +111,22 @@
     <Compile Include="Modules\General\LightingManager.cs" />
     <Compile Include="Modules\General\PortalManager.cs" />
     <Compile Include="Modules\IExtendedModule.cs" />
+    <Compile Include="Modules\LocalColliders\ColliderController.cs" />
+    <Compile Include="Modules\LocalColliders\ColliderUser.cs" />
     <Compile Include="Modules\ManagerModule.cs" />
     <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
+    <Compile Include="Modules\UI\AvatarsUI.cs" />
+    <Compile Include="Modules\UI\WorldsUI.cs" />
+    <Compile Include="Obfuscation\UnityActionInternal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Components\ScrollviewConfig.cs" />
     <Compile Include="UI\Components\UICategoryConfig.cs" />
     <Compile Include="UI\Components\UIToggleConfig.cs" />
     <Compile Include="UI\UIConfig.cs" />
     <Compile Include="VRCExtended.cs" />
+    <Compile Include="VRChat\VRCEManager.cs" />
+    <Compile Include="VRChat\VRCEPlayer.cs" />
+    <Compile Include="VRChat\VRCEPlayerManager.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

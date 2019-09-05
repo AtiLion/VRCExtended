@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 using VRCExtended.Config;
+using VRCExtended.VRChat;
 
 namespace VRCExtended.Modules.General
 {
@@ -16,18 +17,11 @@ namespace VRCExtended.Modules.General
         public static Color OriginalAmbientLight { get; private set; }
         #endregion
 
-        public void Setup()
+        public void Setup() {}
+        public IEnumerator AsyncSetup()
         {
-            // Setup event
-            SceneManager.sceneLoaded += OnSceneLoaded;
-        }
-
-        #region Unity Events
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            if (scene.buildIndex != 1)
-                return;
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+            // Wait for VRChat to load
+            yield return VRCEManager.WaitForVRChatLoad();
 
             // Save original values
             OriginalAmbientLight = RenderSettings.ambientLight;
@@ -41,6 +35,5 @@ namespace VRCExtended.Modules.General
                     RenderSettings.ambientLight = OriginalAmbientLight;
             });
         }
-        #endregion
     }
 }
