@@ -112,7 +112,7 @@
     <Compile Include="Modules\General\PortalManager.cs" />
     <Compile Include="Modules\IExtendedModule.cs" />
     <Compile Include="Modules\LocalColliders\ColliderController.cs" />
-    <Compile Include="Modules\LocalColliders\ColliderUser.cs" />
+    <Compile Include="Modules\LocalColliders\ColliderHandler.cs" />
     <Compile Include="Modules\ManagerModule.cs" />
     <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
     <Compile Include="Modules\UI\AvatarsUI.cs" />
