@@ -19,12 +19,11 @@ using ModPrefs = VRCTools.ModPrefs;
 using VRCExtended.Modules;
 using VRCExtended.Config;
 using VRCExtended.UI;
+using VRCExtended.VRChat;
 
 namespace VRCExtended
 {
     /* NOTES:
-     * ApiGroup.FetchGroupNames(ownerId, ApiGroup.World.value, success, fail) - Get worlds of user
-     * ApiGroup.FetchGroupNames(ownerId, ApiGroup.Avatar.value, success, fail) - Get avatars of user[unconfirmed]
      * Button.colors <- change UI color UwU
     */
 
@@ -34,6 +33,11 @@ namespace VRCExtended
         #region Configuration Variables
         private List<MapConfig> _configWatch = new List<MapConfig>();
         private DateTime _configLastCheck;
+        #endregion
+
+        #region UI Properties
+        public static VRCEUiButton UserInfo_Refresh { get; private set; }
+        public static VRCEUiText UserInfo_LastLogin { get; private set; }
         #endregion
 
         #region VRCMod Functions
@@ -110,11 +114,35 @@ namespace VRCExtended
             // Wait for VRCMenuUtils
             yield return VRCMenuUtilsAPI.WaitForInit();
 
-            VRCMenuUtilsAPI.AddQuickMenuButton("test", "Test", "Check self collider", () =>
-            {
-                
-            });
+            // Add events
+            VRCMenuUtilsAPI.OnPageShown += VRCMenuUtilsAPI_OnPageShown;
 
+            // UserInfo Last Login
+            UserInfo_LastLogin = new VRCEUiText("lastLogin", new Vector2(-470f, -130f), "", VRCEUi.UserInfoScreen.transform);
+            UserInfo_LastLogin.TextObject.fontSize -= 20;
+
+            // UserInfo Refresh Button
+            UserInfo_Refresh = new VRCEUiButton("refresh", new Vector2(0f, 0f), "Refresh");
+            UserInfo_Refresh.OnClick += () =>
+            {
+                if (string.IsNullOrEmpty(PageUserInfo.userIdOfLastUserPageInfoViewed))
+                    return;
+                string id = PageUserInfo.userIdOfLastUserPageInfoViewed;
+
+                ApiCache.Invalidate<APIUser>(id);
+                APIUser.FetchUser(id, (APIUser user) =>
+                {
+                    PageUserInfo pageUserInfo = VRCEUi.UserInfoScreen.GetComponent<PageUserInfo>();
+
+                    if (pageUserInfo != null)
+                        pageUserInfo.SetupUserInfo(user);
+                },
+                (string error) =>
+                {
+                    ExtendedLogger.LogError($"Failed to fetch user of id {id}: {error}");
+                });
+            };
+            VRCMenuUtilsAPI.AddUserInfoButton(UserInfo_Refresh);
 #if DEBUG
             // Load config UI
             ExtendedLogger.Log("Loading UIConfig...");
@@ -123,6 +151,31 @@ namespace VRCExtended
 
             // Finish
             ExtendedLogger.Log("VRCExtended UI loaded!");
+        }
+        #endregion
+
+        #region UI Event Handlers
+        private static void VRCMenuUtilsAPI_OnPageShown(VRCUiPage page)
+        {
+            if(page.GetType() == typeof(PageUserInfo))
+            {
+                // Clear unknown
+                UserInfo_LastLogin.Text = "";
+
+                // Check if current user
+                if (PageUserInfo.userIdOfLastUserPageInfoViewed == VRCEPlayer.Instance.UniqueID)
+                    return;
+
+                // Grab latest
+                APIUser.FetchUser(PageUserInfo.userIdOfLastUserPageInfoViewed, (APIUser user) =>
+                {
+                    UserInfo_LastLogin.Text = "Last login: " + DateTime.Parse(user.last_login).ToString("dd.MM.yyyy hh:mm");
+                },
+                (string error) =>
+                {
+                    ExtendedLogger.LogError($"Failed to fetch user of id {PageUserInfo.userIdOfLastUserPageInfoViewed}: {error}");
+                });
+            }
         }
         #endregion
     }
