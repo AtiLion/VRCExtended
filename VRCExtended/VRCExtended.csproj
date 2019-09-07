@@ -114,10 +114,11 @@
     <Compile Include="Modules\LocalColliders\ColliderController.cs" />
     <Compile Include="Modules\LocalColliders\ColliderHandler.cs" />
     <Compile Include="Modules\ManagerModule.cs" />
+    <Compile Include="Modules\Menu\QuickMenuMenu.cs" />
+    <Compile Include="Modules\Menu\UserInfoMenu.cs" />
     <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
     <Compile Include="Modules\UI\AvatarsUI.cs" />
     <Compile Include="Modules\UI\WorldsUI.cs" />
-    <Compile Include="Modules\Users\Headlight.cs" />
     <Compile Include="Obfuscation\UnityActionInternal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Components\ScrollviewConfig.cs" />
@@ -129,6 +130,8 @@
     <Compile Include="VRChat\VRCEPlayer.cs" />
     <Compile Include="VRChat\VRCEPlayerManager.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Modules\Users\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

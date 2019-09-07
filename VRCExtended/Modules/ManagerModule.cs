@@ -12,7 +12,7 @@ using Harmony;
 using VRCExtended.Modules.General;
 using VRCExtended.Modules.UI;
 using VRCExtended.Modules.LocalColliders;
-using VRCExtended.Modules.Users;
+using VRCExtended.Modules.Menu;
 
 using VRCModLoader;
 
@@ -59,7 +59,8 @@ namespace VRCExtended.Modules
 #endif
             new WorldsUI(),
             new ColliderController(),
-            new Headlight()
+            new UserInfoMenu(),
+            new QuickMenuMenu()
         };
         public static Dictionary<string, IExtendedModule> Modules { get; private set; } = new Dictionary<string, IExtendedModule>();
         #endregion
