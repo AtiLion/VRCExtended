@@ -9,15 +9,15 @@ namespace VRCExtended.Config
 {
     internal class ConfigUsers
     {
+#if DEBUG
         [ConfigItem("Limit avatar features", false)]
         public bool? AvatarLimiter { get; set; }
         [ConfigItem("User specific volumes", false)]
         public bool? UserSpecificVolumes { get; set; }
+#endif
 
-        [ConfigItem("Get a light on your head[Local]", false)]
+        [ConfigItem("Local headlight", false)]
         public bool? HeadLight { get; set; }
-        [ConfigItem("Get a light on your head", false)]
-        public bool? HeadLightGlobal { get; set; }
         [ConfigItem("Sit on anyone's head", false)]
         public bool? SitOnAnyone { get; set; }
     }

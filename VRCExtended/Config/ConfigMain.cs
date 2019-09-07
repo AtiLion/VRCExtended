@@ -18,8 +18,10 @@ namespace VRCExtended.Config
         [ConfigCategory("Local Colliders")]
         public ConfigLocalColliders LocalColliders { get; set; }
 
+#if DEBUG
         [ConfigCategory("Anti Crasher")]
         public ConfigAntiCrasher AntiCrasher { get; set; }
+#endif
 
         [ConfigCategory("Users")]
         public ConfigUsers Users { get; set; }

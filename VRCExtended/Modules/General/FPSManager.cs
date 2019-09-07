@@ -50,6 +50,8 @@ namespace VRCExtended.Modules.General
             {
                 if (!(bool)ManagerConfig.Config.General.LowFPSUnfocused)
                     return;
+                if (VRCTrackingManager.IsInVRMode())
+                    return;
 
                 if(!hasFocus)
                 {
