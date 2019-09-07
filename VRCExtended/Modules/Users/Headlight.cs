@@ -36,39 +36,36 @@ namespace VRCExtended.Modules.Users
         }
 
         #region Headlight Variables
-        private GameObject _lightGameObject;
+        private Light _light;
         #endregion
         #region Headlight Functions
         public void AddLight()
         {
-            if (_lightGameObject != null)
+            if (_light != null)
+                return;
+            if (VRCEPlayer.Instance.VRCPlayer.avatarGameObject == null || VRCEPlayer.Instance.Animator == null)
                 return;
             Transform head = VRCEPlayer.Instance.Animator.GetBoneTransform(HumanBodyBones.Head);
             
             if(head)
             {
-                _lightGameObject = new GameObject("Headlight");
-                Light light = _lightGameObject.AddComponent<Light>();
+                _light = head.gameObject.AddComponent<Light>();
 
-                light.color = Color.white;
-                light.type = LightType.Spot;
-                light.shadows = LightShadows.Soft;
-                light.intensity = 0.6f;
-
-                _lightGameObject.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-                _lightGameObject.transform.position = Camera.main.transform.position;
-                _lightGameObject.transform.SetParent(Camera.main.transform);
+                _light.color = Color.white;
+                _light.type = LightType.Spot;
+                _light.shadows = LightShadows.Soft;
+                _light.intensity = 0.8f;
 
                 ExtendedLogger.Log("Added headlight to user!");
             }
         }
         public void RemoveLight()
         {
-            if (_lightGameObject == null)
+            if (_light == null)
                 return;
 
-            GameObject.Destroy(_lightGameObject);
-            _lightGameObject = null;
+            GameObject.Destroy(_light);
+            _light = null;
             ExtendedLogger.Log("Removed headlight from user!");
         }
         #endregion
@@ -78,9 +75,18 @@ namespace VRCExtended.Modules.Users
         {
             if (player != VRCEPlayer.Instance)
                 return;
+
+            // Add event
+            player.AvatarManager.OnAvatarCreated += delegate (GameObject avatar, VRC_AvatarDescriptor descriptor, bool loaded)
+            {
+                if (!(bool)ManagerConfig.Config.Users.HeadLight)
+                    return;
+                AddLight();
+            };
+
+            // Add headlight
             if (!(bool)ManagerConfig.Config.Users.HeadLight)
                 return;
-
             AddLight();
         }
         #endregion

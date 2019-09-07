@@ -82,13 +82,20 @@ namespace VRCExtended.Modules.LocalColliders
         #region Player Event Handlers
         private void VRCEPlayerManager_OnPlayerJoined(VRCEPlayer player)
         {
+            // Reset when switching worlds
+            if(player == VRCEPlayer.Instance && Users.ContainsKey(player.UniqueID))
+            {
+                Users[player.UniqueID].ClearColliders();
+                Users.Clear();
+            }
+
             // Setup handler
             ColliderHandler handler = player.GameObject.AddComponent<ColliderHandler>();
             handler.enabled = true;
 
             // Add handler
             Users.Add(player.UniqueID, handler);
-            ExtendedLogger.Log($"User {player.DisplayName} added to colliders {player.GameObject}!");
+            ExtendedLogger.Log($"User {player.DisplayName} added to colliders!");
         }
         private void VRCEPlayerManager_OnPlayerLeft(VRCEPlayer player)
         {
