@@ -11,10 +11,10 @@ namespace VRCExtended.Config
     {
         [ConfigItem("Enabled", false)]
         public bool? Enabled { get; set; }
-        [ConfigItem("Enable for everyone", true)]
-        public bool? EnableForEveryone { get; set; }
         [ConfigItem("Enable colliders on hands only", true)]
         public bool? EnableForHandsOnly { get; set; }
+        [ConfigItem("Enable colliders on legs", false)]
+        public bool? EnableForLegs { get; set; }
         [ConfigItem("Disable colliders on distance", true)]
         public bool? DisableOnDistance { get; set; }
 #if DEBUG
@@ -24,7 +24,7 @@ namespace VRCExtended.Config
 
         [ConfigItem("Players can interact with other players", false)]
         public bool? PlayersInteractWithOthers { get; set; }
-        [ConfigItem("Players can interact with you", false)]
+        [ConfigItem("Players can interact with you", true)]
         public bool? PlayersInteractWithMe { get; set; }
         
         [ConfigItem("Add fake colliders to yourself", false)]

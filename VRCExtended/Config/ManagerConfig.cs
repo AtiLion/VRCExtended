@@ -45,6 +45,7 @@ namespace VRCExtended.Config
         #region ConfigManager Events
         public delegate void ConfigValueUpdateHandler(MapConfig conf);
         public static event ConfigValueUpdateHandler OnValueUpdate;
+        public static event Action OnSave;
         #endregion
 
         #region ConfigManager Functions
@@ -83,7 +84,7 @@ namespace VRCExtended.Config
         public static void Save()
         {
             ExtendedLogger.Log("Saving configuration...");
-            try { File.WriteAllText(ConfigFile, JsonConvert.SerializeObject(Config, Formatting.Indented)); }
+            try { File.WriteAllText(ConfigFile, JsonConvert.SerializeObject(Config, Formatting.Indented)); OnSave?.Invoke(); }
             catch (Exception ex) { ExtendedLogger.LogError("Failed to save configuration file.", ex); }
             ExtendedLogger.Log("Configuration saved!");
         }
