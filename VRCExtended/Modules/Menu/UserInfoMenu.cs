@@ -14,6 +14,8 @@ using VRCExtended.VRChat;
 
 using UnityEngine;
 
+using VRCModLoader;
+
 namespace VRCExtended.Modules.Menu
 {
     internal class UserInfoMenu : IExtendedModule
@@ -25,7 +27,7 @@ namespace VRCExtended.Modules.Menu
             yield return VRCMenuUtilsAPI.WaitForInit();
 
             // Add events
-            VRCMenuUtilsAPI.OnPageShown += VRCMenuUtilsAPI_OnPageShown;
+            VRCMenuUtilsAPI.OnPageShown += page => ModManager.StartCoroutine(VRCMenuUtilsAPI_OnPageShown(page));
 
             // Last Login
             LastLogin = new VRCEUiText("lastLogin", new Vector2(-470f, -130f), "", VRCEUi.UserInfoScreen.transform);
@@ -40,17 +42,15 @@ namespace VRCExtended.Modules.Menu
                 string id = PageUserInfo.userIdOfLastUserPageInfoViewed;
 
                 ApiCache.Invalidate<APIUser>(id);
-                APIUser.FetchUser(id, (APIUser user) =>
+                APIUser.FetchUser(id, user =>
                 {
                     PageUserInfo pageUserInfo = VRCEUi.UserInfoScreen.GetComponent<PageUserInfo>();
 
                     if (pageUserInfo != null)
                         pageUserInfo.SetupUserInfo(user);
                 },
-                (string error) =>
-                {
-                    ExtendedLogger.LogError($"Failed to fetch user of id {id}: {error}");
-                });
+                error =>
+                    ExtendedLogger.LogError($"Failed to fetch user of id {id}: {error}"));
             };
             VRCMenuUtilsAPI.AddUserInfoButton(Refresh);
         }
@@ -59,38 +59,34 @@ namespace VRCExtended.Modules.Menu
         public static VRCEUiButton Refresh { get; private set; }
         public static VRCEUiText LastLogin { get; private set; }
         #endregion
-        #region UI Event Handlers
-        private void VRCMenuUtilsAPI_OnPageShown(VRCUiPage page)
+        #region UI Coroutines
+        private IEnumerator VRCMenuUtilsAPI_OnPageShown(VRCUiPage page)
         {
             if (page.GetType() == typeof(PageUserInfo))
             {
                 // Clear unknown
                 LastLogin.Text = "";
+                Refresh.ButtonObject.interactable = true;
+
+                // Wait for userId
+                while (string.IsNullOrEmpty(PageUserInfo.userIdOfLastUserPageInfoViewed))
+                    yield return null;
 
                 // Check if current user
                 if (PageUserInfo.userIdOfLastUserPageInfoViewed == VRCEPlayer.Instance.UniqueID)
-                    return;
+                {
+                    Refresh.ButtonObject.interactable = false;
+                    yield break;
+                }
 
                 // Grab latest
-                ReloadModInfo();
+                APIUser.FetchUser(PageUserInfo.userIdOfLastUserPageInfoViewed, user =>
+                {
+                    LastLogin.Text = "Last login: " + DateTime.Parse(user.last_login).ToString("dd.MM.yyyy hh:mm");
+                },
+                error =>
+                    ExtendedLogger.LogError($"Failed to fetch user of id {PageUserInfo.userIdOfLastUserPageInfoViewed}: {error}"));
             }
-        }
-        #endregion
-        #region UI Functions
-        private void ReloadModInfo(bool retry = false)
-        {
-            APIUser.FetchUser(PageUserInfo.userIdOfLastUserPageInfoViewed, (APIUser user) =>
-            {
-                LastLogin.Text = "Last login: " + DateTime.Parse(user.last_login).ToString("dd.MM.yyyy hh:mm");
-            },
-            (string error) =>
-            {
-                ExtendedLogger.LogError($"Failed to fetch user of id {PageUserInfo.userIdOfLastUserPageInfoViewed}: {error}");
-
-                // Sometimes it can't parse the returned info, so retry
-                if (!retry)
-                    ReloadModInfo(true);
-            });
         }
         #endregion
     }
