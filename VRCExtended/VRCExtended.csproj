@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\lib\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>..\lib\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -83,7 +86,8 @@
     <Reference Include="VRCMenuUtils">
       <HintPath>..\lib\VRCMenuUtils.dll</HintPath>
     </Reference>
-    <Reference Include="VRCModLoader">
+    <Reference Include="VRCModLoader, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\VRCModLoader.dll</HintPath>
     </Reference>
     <Reference Include="VRCSDK2">
@@ -119,8 +123,10 @@
     <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
     <Compile Include="Modules\UI\AvatarsUI.cs" />
     <Compile Include="Modules\UI\WorldsUI.cs" />
+    <Compile Include="Obfuscation\MethodInfoExtensions.cs" />
     <Compile Include="Obfuscation\UnityActionInternal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Storage\ManagerStorage.cs" />
     <Compile Include="UI\Components\ScrollviewConfig.cs" />
     <Compile Include="UI\Components\UICategoryConfig.cs" />
     <Compile Include="UI\Components\UIToggleConfig.cs" />

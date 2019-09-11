@@ -29,16 +29,10 @@ namespace VRCExtended.Modules.Menu
             Headlight = new VRCEUiQuickButton("headlight", new Vector2(0f, 0f), "Toggle HeadLight", "Enables/Disables a headlight on your avatar");
             Headlight.OnClick += Headlight_OnClick;
             VRCMenuUtilsAPI.AddQuickMenuButton(Headlight);
-
-            // Show avatar creator
-            ShowAvatarCreator = new VRCEUiQuickButton("showavatarcreator", new Vector2(0f, 0f), "Show Avatar Creator", "Shows the creator of the currently used avatar");
-            ShowAvatarCreator.OnClick += () => ShowAvatarCreator_OnClick();
-            VRCMenuUtilsAPI.AddQuickMenuButton(ShowAvatarCreator);
         }
 
         #region UI Items
         public static VRCEUiQuickButton Headlight;
-        public static VRCEUiQuickButton ShowAvatarCreator;
         #endregion
         #region UI Event Handlers
         private void Headlight_OnClick()
@@ -72,34 +66,6 @@ namespace VRCExtended.Modules.Menu
                 GameObject.Destroy(light);
                 ExtendedLogger.Log("Removed headlight from user!");
             }
-        }
-        private void ShowAvatarCreator_OnClick()
-        {
-            if (APIUser.CurrentUser == null || string.IsNullOrEmpty(APIUser.CurrentUser.avatarId))
-                return;
-            PageUserInfo userInfo = VRCEUi.UserInfoScreen.GetComponent<PageUserInfo>();
-
-            // Get avatar info
-            new ApiAvatar()
-            {
-                id = APIUser.CurrentUser.avatarId
-            }.Get(container => {
-                ApiAvatar avatar = container.Model as ApiAvatar;
-                if (avatar == null || string.IsNullOrEmpty(avatar.authorId))
-                    return;
-
-                APIUser.FetchUser(avatar.authorId, user =>
-                {
-                    if (user == null)
-                        return;
-
-                    VRCMenuUtilsAPI.ShowUIPage(userInfo, false);
-                    userInfo.SetupUserInfo(user);
-                }, error =>
-                    ExtendedLogger.LogError($"Failed to fetch user of id {avatar.authorId}: {error}"));
-                    
-            }, container =>
-                ExtendedLogger.LogError($"Failed to get avatar information! {container.Error}"));
         }
         #endregion
     }

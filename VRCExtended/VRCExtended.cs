@@ -19,7 +19,7 @@ using ModPrefs = VRCTools.ModPrefs;
 using VRCExtended.Modules;
 using VRCExtended.Config;
 using VRCExtended.UI;
-using VRCExtended.VRChat;
+using VRCExtended.Storage;
 
 namespace VRCExtended
 {
@@ -45,6 +45,10 @@ namespace VRCExtended
                 // Load config
                 ExtendedLogger.Log("Loading ManagerConfig...");
                 ManagerConfig.Load();
+
+                // Load storage
+                ExtendedLogger.Log("Loading ManagerStorage...");
+                ManagerStorage.Load();
 
                 // Load modules
                 ExtendedLogger.Log("Loading ManagerModule...");
@@ -81,6 +85,11 @@ namespace VRCExtended
 
                 _configLastCheck = DateTime.Now;
             }
+        }
+        void OnApplicationQuit()
+        {
+            ExtendedLogger.Log("Saving ManagerStorage...");
+            ManagerStorage.Save();
         }
         #endregion
 

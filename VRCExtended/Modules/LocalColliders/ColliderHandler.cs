@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +22,13 @@ namespace VRCExtended.Modules.LocalColliders
         private static float timer = 0f;
         private static float waitTime = 1f;
         private static float maxDistance = Mathf.Sqrt(2f);
+
+        public bool Enabled;
+        #endregion
+
+        #region Input Variables
+        private object input_fist_left;
+        private object input_fist_right;
         #endregion
 
         #region User Properties
@@ -36,13 +44,52 @@ namespace VRCExtended.Modules.LocalColliders
             // Get Player
             Player = new VRCEPlayer(gameObject.GetComponent<Player>());
 
+            // Initialize
+            Enabled = !(bool)config.ManualEnable;
+
+            // Setup input
+            if(Player == VRCEPlayer.Instance)
+            {
+                input_fist_left = VRCInputManager.FindInput("GrabLeft");
+                input_fist_right = VRCInputManager.FindInput("GrabRight");
+            }
+
             // Setup events
             Player.AvatarManager.OnAvatarCreated += OnAvatarCreated;
         }
 
         void Update()
         {
-            if (config == null || !(bool)config.DisableOnDistance || !(bool)config.Enabled)
+            if (config == null || !(bool)config.Enabled || !Enabled)
+                return;
+
+            // Grabbable colliders
+            /*if((bool)config.GrabbableColliders && Player == VRCEPlayer.Instance)
+            {
+                if(LeftHandCollider != null)
+                {
+                    if (ColliderController.GetIsInputActive(input_fist_left) && (int)LeftHandCollider.m_Bound != 1)
+                    {
+                        fi_m_Bound.SetValue(LeftHandCollider, 1);
+                        ExtendedLogger.Log("Squeezed left hand!");
+                    }
+                    else if(LeftHandCollider.m_Bound != 0)
+                        fi_m_Bound.SetValue(LeftHandCollider, 0);
+                }
+                if (RightHandCollider != null)
+                {
+                    if (ColliderController.GetIsInputActive(input_fist_right) && (int)RightHandCollider.m_Bound != 1)
+                    {
+                        fi_m_Bound.SetValue(RightHandCollider, 1);
+                        ExtendedLogger.Log("Squeezed right hand!");
+                    }
+                    else if (RightHandCollider.m_Bound != 0)
+                        fi_m_Bound.SetValue(RightHandCollider, 0);
+                }
+            }*/
+
+            // Disable on distance
+            if (!(bool)config.DisableOnDistance)
                 return;
 
             // Check timing
@@ -101,10 +148,15 @@ namespace VRCExtended.Modules.LocalColliders
         }
         #endregion
 
+        #region Collider Reflection
+        private static FieldInfo fi_m_Bound = typeof(DynamicBoneCollider).GetField("m_Bound", BindingFlags.Public | BindingFlags.Instance);
+        #endregion
         #region Collider Variables
         private bool Active = false;
         private List<DynamicBone> Bones = new List<DynamicBone>();
         private List<DynamicBoneCollider> Colliders = new List<DynamicBoneCollider>();
+        private DynamicBoneCollider LeftHandCollider;
+        private DynamicBoneCollider RightHandCollider;
         #endregion
         #region Collider Functions
         public IEnumerable<DynamicBoneCollider> GetColliders()
@@ -112,13 +164,12 @@ namespace VRCExtended.Modules.LocalColliders
             if (!(bool)config.PlayersInteractWithMe && !(bool)config.PlayersInteractWithOthers && Player != VRCEPlayer.Instance)
                 return new DynamicBoneCollider[0];
             List<DynamicBoneCollider> colliders = new List<DynamicBoneCollider>();
+            Transform handbone_left = Player.Animator.GetBoneTransform(HumanBodyBones.LeftHand);
+            Transform handbone_right = Player.Animator.GetBoneTransform(HumanBodyBones.RightHand);
 
+            // Fake colliders
             if ((bool)config.FakeCollidersOthers || ((bool)config.FakeCollidersMe && Player == VRCEPlayer.Instance))
             {
-                // Get hands
-                Transform handbone_left = Player.Animator.GetBoneTransform(HumanBodyBones.LeftHand);
-                Transform handbone_right = Player.Animator.GetBoneTransform(HumanBodyBones.RightHand);
-
                 if(handbone_left.GetComponent<DynamicBoneCollider>() == null || handbone_right.GetComponent<DynamicBoneCollider>() == null)
                 {
                     Transform middleFingerProx = Player.Animator.GetBoneTransform(HumanBodyBones.LeftMiddleProximal);
@@ -137,6 +188,8 @@ namespace VRCExtended.Modules.LocalColliders
 
                     colliders.Add(handcollider_left);
                     colliders.Add(handcollider_right);
+                    LeftHandCollider = handcollider_left;
+                    RightHandCollider = handcollider_right;
                     ExtendedLogger.Log($"Added fake colliders to {Player.DisplayName}!");
                     return colliders;
                 }
@@ -147,12 +200,15 @@ namespace VRCExtended.Modules.LocalColliders
                 int oldNum = colliders.Count;
 
                 // Hand colliders
-                Transform handbone_left = Player.Animator.GetBoneTransform(HumanBodyBones.LeftHand);
-                Transform handbone_right = Player.Animator.GetBoneTransform(HumanBodyBones.RightHand);
                 if (handbone_left != null && handbone_right != null)
                 {
-                    colliders.AddRange(handbone_left.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => (int)a.m_Bound != 1));
-                    colliders.AddRange(handbone_right.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => (int)a.m_Bound != 1));
+                    var left_colliders = handbone_left.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => (int)a.m_Bound != 1);
+                    var right_colliders = handbone_right.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => (int)a.m_Bound != 1);
+
+                    colliders.AddRange(left_colliders);
+                    colliders.AddRange(right_colliders);
+                    LeftHandCollider = left_colliders.FirstOrDefault();
+                    RightHandCollider = right_colliders.FirstOrDefault();
                 }
 
                 // Leg colliders
@@ -170,7 +226,14 @@ namespace VRCExtended.Modules.LocalColliders
                 return colliders;
             }
             else if (!(bool)config.EnableForHandsOnly)
+            {
+                if (handbone_left != null && handbone_right != null)
+                {
+                    LeftHandCollider = handbone_left.GetComponent<DynamicBoneCollider>();
+                    RightHandCollider = handbone_right.GetComponent<DynamicBoneCollider>();
+                }
                 return Player.Avatar.GetComponentsInChildren<DynamicBoneCollider>(true).Where(a => (int)a.m_Bound != 1);
+            }
             return new DynamicBoneCollider[0];
         }
         public void RemoveAllColliders()
@@ -248,7 +311,7 @@ namespace VRCExtended.Modules.LocalColliders
         #region Avatar Event Handlers
         private void OnAvatarCreated(GameObject avatar, VRC_AvatarDescriptor descriptor, bool loaded)
         {
-            if (!(bool)config.Enabled)
+            if (!(bool)config.Enabled || !Enabled)
                 return;
 
             PopulateColliders();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using UnityEngine.SceneManagement;
 
 using VRCExtended.VRChat;
 using VRCExtended.Config;
+using VRCExtended.Obfuscation;
 
 namespace VRCExtended.Modules.LocalColliders
 {
@@ -23,6 +25,15 @@ namespace VRCExtended.Modules.LocalColliders
             // Wait for VRChat to load
             yield return VRCEManager.WaitForVRChatLoad();
 
+            // Grab input reflection
+            if (is_input_active == null)
+            {
+                is_input_active = VRCInputManager.FindInput("MouseY").GetType()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(a => a.GetGetMethod().HasPattern(is_input_active_pattern));
+                ExtendedLogger.Log($"Found Input's is_input_active! Name {is_input_active.Name}");
+            }
+
             // Setup events
             VRCEPlayerManager.OnPlayerJoined += VRCEPlayerManager_OnPlayerJoined;
             VRCEPlayerManager.OnPlayerLeft += VRCEPlayerManager_OnPlayerLeft;
@@ -32,6 +43,21 @@ namespace VRCExtended.Modules.LocalColliders
             ManagerConfig.OnValueUpdate += ManagerConfig_OnValueUpdate;
             ManagerConfig.OnSave += ManagerConfig_OnSave;
         }
+
+        #region Input Information
+        private static readonly string is_input_active_pattern = "2,40,?,?,?,?,57,?,?,?,?,2,123,?,?,?,?,22,254,1,43,1,22,42";
+        #endregion
+        #region Input Reflection
+        private static PropertyInfo is_input_active;
+        #endregion
+        #region Input Functions
+        public static bool GetIsInputActive(object instance)
+        {
+            if (instance == null || is_input_active == null)
+                return false;
+            return (bool)is_input_active.GetValue(instance, null);
+        }
+        #endregion
 
         #region Configuration Variables
         private bool UpdateColliders = false;
@@ -61,6 +87,9 @@ namespace VRCExtended.Modules.LocalColliders
             // Reload colliders
             foreach (ColliderHandler handler in Users.Values)
             {
+                if (!handler.Enabled)
+                    continue;
+
                 handler.PopulateColliders();
                 if (!(bool)ManagerConfig.Config.LocalColliders.DisableOnDistance)
                     handler.ApplyColliders();

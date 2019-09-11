@@ -78,6 +78,33 @@ namespace VRCExtended.VRChat
         }
         #endregion
 
+        #region PlayerManager Variables
+        private static MethodInfo _playerManager_get_Instance;
+        private static MethodInfo _playerManager_get_PlayersCopy;
+        #endregion
+        #region PlayerManager Properties
+        public static PlayerManager PlayerManager
+        {
+            get
+            {
+                if (_playerManager_get_Instance == null)
+                    _playerManager_get_Instance = typeof(PlayerManager).GetMethod("get_Instance", BindingFlags.Public | BindingFlags.Static);
+                return _playerManager_get_Instance.Invoke(null, new object[0]) as PlayerManager;
+            }
+        }
+        public static VRCEPlayer[] GetPlayers
+        {
+            get
+            {
+                if (_playerManager_get_PlayersCopy == null)
+                    _playerManager_get_PlayersCopy = typeof(PlayerManager).GetMethod("get_PlayersCopy", BindingFlags.Public | BindingFlags.Instance);
+                if (PlayerManager == null)
+                    return null;
+                return (_playerManager_get_PlayersCopy.Invoke(PlayerManager, new object[0]) as Player[]).Select(a => new VRCEPlayer(a)).ToArray();
+            }
+        }
+        #endregion
+
         #region VRCEPlayerManager Event Variables
         private static Dictionary<PlayerChangeHandle, UnityAction<Player>> _playerJoinedEvents = new Dictionary<PlayerChangeHandle, UnityAction<Player>>();
         private static Dictionary<PlayerChangeHandle, UnityAction<Player>> _playerLeftEvents = new Dictionary<PlayerChangeHandle, UnityAction<Player>>();

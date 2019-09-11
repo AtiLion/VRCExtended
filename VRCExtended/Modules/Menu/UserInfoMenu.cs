@@ -11,10 +11,14 @@ using VRC.UI;
 using VRC.Core;
 
 using VRCExtended.VRChat;
+using VRCExtended.Config;
+using VRCExtended.Modules.LocalColliders;
 
 using UnityEngine;
 
 using VRCModLoader;
+
+using Newtonsoft.Json.Linq;
 
 namespace VRCExtended.Modules.Menu
 {
@@ -53,11 +57,32 @@ namespace VRCExtended.Modules.Menu
                     ExtendedLogger.LogError($"Failed to fetch user of id {id}: {error}"));
             };
             VRCMenuUtilsAPI.AddUserInfoButton(Refresh);
+
+            // Toggle colliders
+            ToggleColliders = new VRCEUiButton("toggleColliders", new Vector2(0f, 0f), "Toggle Colliders");
+            ToggleColliders.OnClick += () =>
+            {
+                ColliderHandler handler = ColliderController.Users[PageUserInfo.userIdOfLastUserPageInfoViewed];
+
+                if(handler.Enabled)
+                {
+                    handler.ClearColliders();
+                    handler.Enabled = false;
+                }
+                else
+                {
+                    handler.PopulateColliders();
+                    if (!(bool)ManagerConfig.Config.LocalColliders.DisableOnDistance)
+                        handler.ApplyColliders();
+                }
+            };
+            VRCMenuUtilsAPI.AddUserInfoButton(ToggleColliders);
         }
 
         #region UI Items
         public static VRCEUiButton Refresh { get; private set; }
         public static VRCEUiText LastLogin { get; private set; }
+        public static VRCEUiButton ToggleColliders { get; private set; }
         #endregion
         #region UI Coroutines
         private IEnumerator VRCMenuUtilsAPI_OnPageShown(VRCUiPage page)
@@ -67,6 +92,8 @@ namespace VRCExtended.Modules.Menu
                 // Clear unknown
                 LastLogin.Text = "";
                 Refresh.ButtonObject.interactable = true;
+                ToggleColliders.ButtonObject.interactable = false;
+                ToggleColliders.Text = "Toggle Colliders";
 
                 // Wait for userId
                 while (string.IsNullOrEmpty(PageUserInfo.userIdOfLastUserPageInfoViewed))
@@ -77,6 +104,17 @@ namespace VRCExtended.Modules.Menu
                 {
                     Refresh.ButtonObject.interactable = false;
                     yield break;
+                }
+                else
+                {
+                    if(ColliderController.Users.ContainsKey(PageUserInfo.userIdOfLastUserPageInfoViewed))
+                    {
+                        ToggleColliders.ButtonObject.interactable = true;
+                        if(ColliderController.Users[PageUserInfo.userIdOfLastUserPageInfoViewed].Enabled)
+                            ToggleColliders.Text = "Disable Colliders";
+                        else
+                            ToggleColliders.Text = "Enable Colliders";
+                    }
                 }
 
                 // Grab latest
