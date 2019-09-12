@@ -60,7 +60,8 @@ namespace VRCExtended.Modules
             new WorldsUI(),
             new ColliderController(),
             new UserInfoMenu(),
-            new QuickMenuMenu()
+            new QuickMenuMenu(),
+            new SocialMenu()
         };
         public static Dictionary<string, IExtendedModule> Modules { get; private set; } = new Dictionary<string, IExtendedModule>();
         #endregion

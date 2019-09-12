@@ -26,13 +26,13 @@ namespace VRCExtended.Modules.LocalColliders
             yield return VRCEManager.WaitForVRChatLoad();
 
             // Grab input reflection
-            if (is_input_active == null)
+            /*if (is_input_active == null)
             {
                 is_input_active = VRCInputManager.FindInput("MouseY").GetType()
                     .GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .FirstOrDefault(a => a.GetGetMethod().HasPattern(is_input_active_pattern));
                 ExtendedLogger.Log($"Found Input's is_input_active! Name {is_input_active.Name}");
-            }
+            }*/
 
             // Setup events
             VRCEPlayerManager.OnPlayerJoined += VRCEPlayerManager_OnPlayerJoined;
@@ -87,8 +87,8 @@ namespace VRCExtended.Modules.LocalColliders
             // Reload colliders
             foreach (ColliderHandler handler in Users.Values)
             {
-                if (!handler.Enabled)
-                    continue;
+                /*if (!handler.Enabled)
+                    continue;*/
 
                 handler.PopulateColliders();
                 if (!(bool)ManagerConfig.Config.LocalColliders.DisableOnDistance)
@@ -112,7 +112,7 @@ namespace VRCExtended.Modules.LocalColliders
         private void VRCEPlayerManager_OnPlayerJoined(VRCEPlayer player)
         {
             // Reset when switching worlds
-            if(player == VRCEPlayer.Instance && Users.ContainsKey(player.UniqueID))
+            if (player == VRCEPlayer.Instance && Users.ContainsKey(player.UniqueID))
             {
                 Users[player.UniqueID].ClearColliders();
                 Users.Clear();

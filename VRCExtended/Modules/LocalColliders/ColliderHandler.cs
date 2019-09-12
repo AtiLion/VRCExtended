@@ -23,7 +23,7 @@ namespace VRCExtended.Modules.LocalColliders
         private static float waitTime = 1f;
         private static float maxDistance = Mathf.Sqrt(2f);
 
-        public bool Enabled;
+        //public bool Enabled;
         #endregion
 
         #region Input Variables
@@ -45,14 +45,14 @@ namespace VRCExtended.Modules.LocalColliders
             Player = new VRCEPlayer(gameObject.GetComponent<Player>());
 
             // Initialize
-            Enabled = !(bool)config.ManualEnable;
+            //Enabled = !(bool)config.ManualEnable;
 
             // Setup input
-            if(Player == VRCEPlayer.Instance)
+            /*if(Player == VRCEPlayer.Instance)
             {
                 input_fist_left = VRCInputManager.FindInput("GrabLeft");
                 input_fist_right = VRCInputManager.FindInput("GrabRight");
-            }
+            }*/
 
             // Setup events
             Player.AvatarManager.OnAvatarCreated += OnAvatarCreated;
@@ -60,33 +60,8 @@ namespace VRCExtended.Modules.LocalColliders
 
         void Update()
         {
-            if (config == null || !(bool)config.Enabled || !Enabled)
+            if (config == null || !(bool)config.Enabled/* || !Enabled*/)
                 return;
-
-            // Grabbable colliders
-            /*if((bool)config.GrabbableColliders && Player == VRCEPlayer.Instance)
-            {
-                if(LeftHandCollider != null)
-                {
-                    if (ColliderController.GetIsInputActive(input_fist_left) && (int)LeftHandCollider.m_Bound != 1)
-                    {
-                        fi_m_Bound.SetValue(LeftHandCollider, 1);
-                        ExtendedLogger.Log("Squeezed left hand!");
-                    }
-                    else if(LeftHandCollider.m_Bound != 0)
-                        fi_m_Bound.SetValue(LeftHandCollider, 0);
-                }
-                if (RightHandCollider != null)
-                {
-                    if (ColliderController.GetIsInputActive(input_fist_right) && (int)RightHandCollider.m_Bound != 1)
-                    {
-                        fi_m_Bound.SetValue(RightHandCollider, 1);
-                        ExtendedLogger.Log("Squeezed right hand!");
-                    }
-                    else if (RightHandCollider.m_Bound != 0)
-                        fi_m_Bound.SetValue(RightHandCollider, 0);
-                }
-            }*/
 
             // Disable on distance
             if (!(bool)config.DisableOnDistance)
@@ -311,7 +286,7 @@ namespace VRCExtended.Modules.LocalColliders
         #region Avatar Event Handlers
         private void OnAvatarCreated(GameObject avatar, VRC_AvatarDescriptor descriptor, bool loaded)
         {
-            if (!(bool)config.Enabled || !Enabled)
+            if (!(bool)config.Enabled /*|| !Enabled*/)
                 return;
 
             PopulateColliders();

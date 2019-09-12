@@ -15,8 +15,5 @@ namespace VRCExtended.Config
         [ConfigItem("User specific volumes", false)]
         public bool? UserSpecificVolumes { get; set; }
 #endif
-
-        [ConfigItem("Sit on anyone's head", false)]
-        public bool? SitOnAnyone { get; set; }
     }
 }

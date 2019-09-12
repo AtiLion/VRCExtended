@@ -23,7 +23,9 @@ namespace VRCExtended.Config
         public ConfigAntiCrasher AntiCrasher { get; set; }
 #endif
 
+#if DEBUG
         [ConfigCategory("Users")]
         public ConfigUsers Users { get; set; }
+#endif
     }
 }

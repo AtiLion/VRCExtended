@@ -8,6 +8,7 @@ using VRC.Core;
 using VRC.UI;
 
 using UnityEngine;
+using UnityEngine.Networking;
 
 using VRCMenuUtils;
 using VRChat.UI;
@@ -21,18 +22,20 @@ using VRCExtended.Config;
 using VRCExtended.UI;
 using VRCExtended.Storage;
 
+using Newtonsoft.Json.Linq;
+
 namespace VRCExtended
 {
     /* NOTES:
      * Button.colors <- change UI color UwU
     */
 
-    [VRCModInfo("VRCExtended", "1.0.0", "AtiLion", "https://github.com/AtiLion/VRCExtended/releases", "vrcextended")]
+    [VRCModInfo("VRCExtended", "1.0.0p1", "AtiLion", "https://github.com/AtiLion/VRCExtended/releases", "vrcextended")]
     internal class VRCExtended : VRCMod
     {
         #region Configuration Variables
         private List<MapConfig> _configWatch = new List<MapConfig>();
-        private DateTime _configLastCheck;
+        private float _configLastCheck = 0f;
         #endregion
 
         #region VRCMod Functions
@@ -59,6 +62,12 @@ namespace VRCExtended
             foreach (MapConfig map in ManagerConfig.Maps)
                 LoadMapConfig(map);
 
+            // Setup coroutines
+            VRCMenuUtilsAPI.RunBeforeFlowManager(DisplayPreview());
+#if !DEBUG
+            VRCMenuUtilsAPI.RunBeforeFlowManager(CheckForUpdate());
+#endif
+
             // Load UI
             ModManager.StartCoroutine(LoadUI());
 
@@ -67,7 +76,8 @@ namespace VRCExtended
         void OnFixedUpdate()
         {
             // Update configs
-            if(_configLastCheck == null || (DateTime.Now - _configLastCheck).TotalMilliseconds >= 1000) // Update every second
+            _configLastCheck += Time.deltaTime;
+            if (_configLastCheck > 2f)
             {
                 bool save = false;
                 foreach(MapConfig conf in _configWatch)
@@ -83,7 +93,7 @@ namespace VRCExtended
                 if (save)
                     ManagerConfig.Save();
 
-                _configLastCheck = DateTime.Now;
+                _configLastCheck = 0f;
             }
         }
         void OnApplicationQuit()
@@ -113,7 +123,7 @@ namespace VRCExtended
         #endregion
 
         #region Coroutine Loaders
-        private static IEnumerator LoadUI()
+        private IEnumerator LoadUI()
         {
             // Wait for VRCMenuUtils
             yield return VRCMenuUtilsAPI.WaitForInit();
@@ -126,6 +136,93 @@ namespace VRCExtended
 
             // Finish
             ExtendedLogger.Log("VRCExtended UI loaded!");
+        }
+        #endregion
+        #region Coroutine Functions
+        private IEnumerator DisplayPreview()
+        {
+            if (ManagerStorage.Storage.ContainsKey("previewShown"))
+                yield break;
+            bool popupOpen = true;
+
+            VRCMenuUtilsAPI.Alert(
+                "VRCE Preview",
+                "This is a preview version of VRCExtended! Not all features are yet implemented, and expect bugs!",
+                "Ok", () => {
+                    VRCMenuUtilsAPI.HideCurrentPopup();
+                    popupOpen = false;
+                    ManagerStorage.Storage.Add("previewShown", true);
+                });
+            while (popupOpen) yield return null;
+        }
+        private IEnumerator CheckForUpdate()
+        {
+            bool popupOpen = false;
+
+            // Check version information
+            ExtendedLogger.Log("Checking for updates...");
+            using(UnityWebRequest request = UnityWebRequest.Get("https://api.github.com/repos/AtiLion/VRCExtended/releases/latest"))
+            {
+                // Get data
+                yield return request.SendWebRequest();
+
+                // Check if data was downloaded successfully
+                if(request.isNetworkError)
+                {
+                    ExtendedLogger.LogError($"Network error! Failed to check for updates! {request.error}");
+                    yield break;
+                }
+                if (request.isHttpError)
+                {
+                    ExtendedLogger.LogError($"HTTP error! Failed to check for updates! {request.error}");
+                    yield break;
+                }
+
+                // Check for update
+                try
+                {
+                    JObject data = JObject.Parse(request.downloadHandler.text);
+                    JToken version;
+
+                    if(!data.TryGetValue("tag_name", out version))
+                    {
+                        ExtendedLogger.LogError("Could not find version data!");
+                        yield break;
+                    }
+
+                    ExtendedLogger.Log($"Latest {(string)version} : Current {Version}");
+                    if((string)version == Version)
+                    {
+                        ExtendedLogger.Log("No updates found!");
+                        yield break;
+                    }
+
+                    popupOpen = true;
+                }
+                catch (Exception ex)
+                {
+                    ExtendedLogger.LogError("Version check failed!", ex);
+                    yield break;
+                }
+            }
+
+            // Display updates
+            if(popupOpen)
+            {
+                ExtendedLogger.Log($"New update found!");
+                VRCMenuUtilsAPI.Alert(
+                        "VRCExtended Updater",
+                        "A new version of VRCExtended is available! Press \"Open\" to open the download in your browser.",
+                        "Close", () => { VRCMenuUtilsAPI.HideCurrentPopup(); popupOpen = false; },
+                        "Open", () =>
+                        {
+                            VRCMenuUtilsAPI.HideCurrentPopup();
+                            popupOpen = false;
+                            System.Diagnostics.Process.Start("https://github.com/AtiLion/VRCExtended/releases");
+                        }
+                    );
+                while (popupOpen) yield return null;
+            }
         }
         #endregion
     }

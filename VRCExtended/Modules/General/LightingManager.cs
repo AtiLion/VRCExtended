@@ -11,6 +11,7 @@ using VRCExtended.VRChat;
 
 namespace VRCExtended.Modules.General
 {
+#if DEBUG
     internal class LightingManager : IExtendedModule
     {
         #region LightingManager Properties
@@ -36,4 +37,5 @@ namespace VRCExtended.Modules.General
             });
         }
     }
+#endif
 }

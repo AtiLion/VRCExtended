@@ -17,9 +17,9 @@ namespace VRCExtended.Config
         public bool? EnableForLegs { get; set; }
         [ConfigItem("Disable colliders on distance", true)]
         public bool? DisableOnDistance { get; set; }
+#if DEBUG
         [ConfigItem("Require manual enable", false)]
         public bool? ManualEnable { get; set; }
-#if DEBUG
         [ConfigItem("Use smart colliders", false)]
         public bool? UseSmartColliders { get; set; }
 #endif

@@ -119,6 +119,7 @@
     <Compile Include="Modules\LocalColliders\ColliderHandler.cs" />
     <Compile Include="Modules\ManagerModule.cs" />
     <Compile Include="Modules\Menu\QuickMenuMenu.cs" />
+    <Compile Include="Modules\Menu\SocialMenu.cs" />
     <Compile Include="Modules\Menu\UserInfoMenu.cs" />
     <Compile Include="Modules\ModuleExtensions\MethodInfoExtensions.cs" />
     <Compile Include="Modules\UI\AvatarsUI.cs" />

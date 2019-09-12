@@ -59,7 +59,7 @@ namespace VRCExtended.Modules.Menu
             VRCMenuUtilsAPI.AddUserInfoButton(Refresh);
 
             // Toggle colliders
-            ToggleColliders = new VRCEUiButton("toggleColliders", new Vector2(0f, 0f), "Toggle Colliders");
+            /*ToggleColliders = new VRCEUiButton("toggleColliders", new Vector2(0f, 0f), "Toggle Colliders");
             ToggleColliders.OnClick += () =>
             {
                 ColliderHandler handler = ColliderController.Users[PageUserInfo.userIdOfLastUserPageInfoViewed];
@@ -76,7 +76,7 @@ namespace VRCExtended.Modules.Menu
                         handler.ApplyColliders();
                 }
             };
-            VRCMenuUtilsAPI.AddUserInfoButton(ToggleColliders);
+            VRCMenuUtilsAPI.AddUserInfoButton(ToggleColliders);*/
         }
 
         #region UI Items
@@ -107,14 +107,14 @@ namespace VRCExtended.Modules.Menu
                 }
                 else
                 {
-                    if(ColliderController.Users.ContainsKey(PageUserInfo.userIdOfLastUserPageInfoViewed))
+                    /*if(ColliderController.Users.ContainsKey(PageUserInfo.userIdOfLastUserPageInfoViewed))
                     {
                         ToggleColliders.ButtonObject.interactable = true;
                         if(ColliderController.Users[PageUserInfo.userIdOfLastUserPageInfoViewed].Enabled)
                             ToggleColliders.Text = "Disable Colliders";
                         else
                             ToggleColliders.Text = "Enable Colliders";
-                    }
+                    }*/
                 }
 
                 // Grab latest
